@@ -4,9 +4,9 @@ import backgroundImg from "../image/backgroundImg.jpg";
 export const ContainnerRegLogin = ({ title, children }) => {
   return (
     <ImageBackground source={backgroundImg}>
-      <View style={ContainerStyled.container}>
-        <View style={ContainerStyled.content}>
-          <Text style={ContainerStyled.title}>{title}</Text>
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>{title}</Text>
           {children}
         </View>
       </View>
@@ -14,7 +14,7 @@ export const ContainnerRegLogin = ({ title, children }) => {
   );
 };
 
-export const ContainerStyled = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     height: "100%",
     justifyContent: "flex-end",

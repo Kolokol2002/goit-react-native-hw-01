@@ -5,9 +5,9 @@ export const ButtonLogin = ({ text }) => {
     <Pressable
       style={({ pressed }) => [
         {
-          backgroundColor: pressed ? "red" : "#FF6C00",
+          backgroundColor: pressed ? "#ff6a00d3" : "#FF6C00",
         },
-        ButtonLoginStyled.button,
+        styles.button,
       ]}
       onPress={() => Alert.alert("Button Pressed!")}
     >
@@ -16,7 +16,7 @@ export const ButtonLogin = ({ text }) => {
   );
 };
 
-const ButtonLoginStyled = StyleSheet.create({
+const styles = StyleSheet.create({
   button: {
     marginTop: 43,
     paddingHorizontal: 32,

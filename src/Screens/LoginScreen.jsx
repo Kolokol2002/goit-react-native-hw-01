@@ -10,7 +10,7 @@ export const LoginScreen = () => {
       <Input typeInput={"password"} placeholder={"Пароль"} />
 
       <ButtonLogin text={"Увійти"} />
-      <IsLogin text={"Немає акаунту?"} linkText={"Зареєструватися"} />
+      <IsLogin text={"Немає акаунту? Зареєструватися"} />
     </ContainnerRegLogin>
   );
 };

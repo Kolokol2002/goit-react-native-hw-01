@@ -3,13 +3,13 @@ import { AntDesign } from "@expo/vector-icons";
 
 export const PhotoBox = () => {
   return (
-    <View style={PhotoBoxStyled.container}>
+    <View style={styles.container}>
       <Pressable
-        style={PhotoBoxStyled.buttonIcon}
+        style={styles.buttonIcon}
         onPress={() => Alert.alert("Button Pressed!")}
       >
         <AntDesign
-          style={PhotoBoxStyled.iconAddPhoto}
+          style={styles.iconAddPhoto}
           name="pluscircleo"
           size={24}
           color="black"
@@ -19,7 +19,7 @@ export const PhotoBox = () => {
   );
 };
 
-const PhotoBoxStyled = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     position: "absolute",
     top: -60,

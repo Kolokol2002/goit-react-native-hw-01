@@ -12,7 +12,7 @@ export const RegistrationScreen = () => {
       <Input typeInput={"email"} placeholder={"Адреса електронної пошти"} />
       <Input typeInput={"password"} placeholder={"Пароль"} />
       <ButtonLogin text={"Зареєстуватися"} />
-      <IsLogin text={"Вже є акаунт?"} linkText={"Увійти"} />
+      <IsLogin text={"Вже є акаунт? Увійти"} />
     </ContainnerRegLogin>
   );
 };

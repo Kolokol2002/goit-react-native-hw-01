@@ -1,30 +1,27 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
-export const IsLogin = ({ text, linkText }) => {
+export const IsLogin = ({ text }) => {
   return (
-    <View style={IsLoginStyled.container}>
-      <Text style={IsLoginStyled.text}>{text}</Text>
+    <View style={styles.container}>
       <Pressable
         onPress={() => Alert.alert("Button Pressed!")}
-        style={IsLoginStyled.link}
+        style={styles.link}
       >
-        <Text style={IsLoginStyled.linkText}>{linkText}</Text>
+        <Text style={styles.text}>{text}</Text>
       </Pressable>
     </View>
   );
 };
 
-const IsLoginStyled = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     marginTop: 16,
     marginBottom: 78,
     flexDirection: "row",
-    gap: 5,
     justifyContent: "center",
   },
-  text: {},
-  link: {},
-  linkText: {
+  text: {
     textDecorationLine: "underline",
   },
+  link: {},
 });

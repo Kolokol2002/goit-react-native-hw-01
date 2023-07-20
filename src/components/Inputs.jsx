@@ -18,8 +18,8 @@ export const Input = ({ typeInput, placeholder }) => {
     setBorderColor("#E8E8E8");
   };
   const onFocus = () => {
-    setBackgroundColor("#ffffff");
-    setBorderColor("#0c0101");
+    setBackgroundColor("#FFFFFF");
+    setBorderColor("#FF6C00");
   };
   const onTogglePassword = () => {
     setTogglePassword(togglePassword ? false : true);
@@ -28,7 +28,7 @@ export const Input = ({ typeInput, placeholder }) => {
   switch (typeInput) {
     case "password":
       return (
-        <View style={InputPasswordStyled.inputPassword}>
+        <View style={styles.inputPassword}>
           <TextInput
             onBlur={onBlur}
             onFocus={onFocus}
@@ -36,13 +36,10 @@ export const Input = ({ typeInput, placeholder }) => {
             placeholder={placeholder}
             style={[
               { backgroundColor: backgroundColor, borderColor: borderColor },
-              InputStyled.input,
+              styles.input,
             ]}
           />
-          <Pressable
-            style={InputPasswordStyled.view}
-            onPress={onTogglePassword}
-          >
+          <Pressable style={styles.view} onPress={onTogglePassword}>
             <Text>Показати</Text>
           </Pressable>
         </View>
@@ -55,7 +52,7 @@ export const Input = ({ typeInput, placeholder }) => {
           inputMode={typeInput}
           style={[
             { backgroundColor: backgroundColor, borderColor: borderColor },
-            InputStyled.input,
+            styles.input,
           ]}
           placeholder={placeholder}
         />
@@ -63,7 +60,7 @@ export const Input = ({ typeInput, placeholder }) => {
   }
 };
 
-const InputPasswordStyled = StyleSheet.create({
+const styles = StyleSheet.create({
   inputPassword: {},
   view: {
     position: "absolute",
@@ -72,9 +69,6 @@ const InputPasswordStyled = StyleSheet.create({
     marginRight: 22,
     marginBottom: 22,
   },
-});
-
-const InputStyled = StyleSheet.create({
   input: {
     marginTop: 16,
     padding: 16,
