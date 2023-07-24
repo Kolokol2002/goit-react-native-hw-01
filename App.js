@@ -6,9 +6,9 @@ import { LoginScreen } from "./src/Screens/LoginScreen";
 const App = () => {
   return (
     <View>
-      {/* <RegistrationScreen /> */}
+      <RegistrationScreen />
       {/* <PostsScreen /> */}
-      <LoginScreen />
+      {/* <LoginScreen /> */}
     </View>
   );
 };

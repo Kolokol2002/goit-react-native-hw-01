@@ -5,10 +5,11 @@ import {
   Text,
   View,
   Pressable,
-  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
-export const Input = ({ typeInput, placeholder }) => {
+export const Input = ({ typeInput, placeholder, value, onChangeText }) => {
   const [borderColor, setBorderColor] = useState("#E8E8E8");
   const [backgroundColor, setBackgroundColor] = useState("#F6F6F6");
   const [togglePassword, setTogglePassword] = useState(true);
@@ -29,16 +30,22 @@ export const Input = ({ typeInput, placeholder }) => {
     case "password":
       return (
         <View style={styles.inputPassword}>
-          <TextInput
-            onBlur={onBlur}
-            onFocus={onFocus}
-            secureTextEntry={togglePassword}
-            placeholder={placeholder}
-            style={[
-              { backgroundColor: backgroundColor, borderColor: borderColor },
-              styles.input,
-            ]}
-          />
+          <KeyboardAvoidingView
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          >
+            <TextInput
+              onBlur={onBlur}
+              onFocus={onFocus}
+              value={value}
+              onChangeText={onChangeText}
+              secureTextEntry={togglePassword}
+              placeholder={placeholder}
+              style={[
+                { backgroundColor: backgroundColor, borderColor: borderColor },
+                styles.input,
+              ]}
+            />
+          </KeyboardAvoidingView>
           <Pressable style={styles.view} onPress={onTogglePassword}>
             <Text>Показати</Text>
           </Pressable>
@@ -46,16 +53,22 @@ export const Input = ({ typeInput, placeholder }) => {
       );
     default:
       return (
-        <TextInput
-          onBlur={onBlur}
-          onFocus={onFocus}
-          inputMode={typeInput}
-          style={[
-            { backgroundColor: backgroundColor, borderColor: borderColor },
-            styles.input,
-          ]}
-          placeholder={placeholder}
-        />
+        <KeyboardAvoidingView
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
+        >
+          <TextInput
+            onBlur={onBlur}
+            onFocus={onFocus}
+            value={value}
+            onChangeText={onChangeText}
+            inputMode={typeInput}
+            style={[
+              { backgroundColor: backgroundColor, borderColor: borderColor },
+              styles.input,
+            ]}
+            placeholder={placeholder}
+          />
+        </KeyboardAvoidingView>
       );
   }
 };

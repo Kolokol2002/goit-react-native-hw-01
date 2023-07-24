@@ -1,6 +1,6 @@
-import { Alert, Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 
-export const ButtonLogin = ({ text }) => {
+export const ButtonLogin = ({ text, onPress }) => {
   return (
     <Pressable
       style={({ pressed }) => [
@@ -9,7 +9,7 @@ export const ButtonLogin = ({ text }) => {
         },
         styles.button,
       ]}
-      onPress={() => Alert.alert("Button Pressed!")}
+      onPress={onPress}
     >
       <Text>{text}</Text>
     </Pressable>

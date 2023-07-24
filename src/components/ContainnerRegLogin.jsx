@@ -1,15 +1,24 @@
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
+import {
+  ImageBackground,
+  Keyboard,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import backgroundImg from "../image/backgroundImg.jpg";
 
 export const ContainnerRegLogin = ({ title, children }) => {
   return (
     <ImageBackground source={backgroundImg}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
-          {children}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Text style={styles.title}>{title}</Text>
+            {children}
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </ImageBackground>
   );
 };
