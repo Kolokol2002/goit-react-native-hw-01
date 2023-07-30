@@ -4,18 +4,14 @@ import { PhotoBox } from "../components/PhotoBox";
 import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
-import { Alert } from "react-native";
 
-export const RegistrationScreen = () => {
+export const RegistrationScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    Alert.alert(
-      "Credentials",
-      `Login: ${name}\nMail: ${mail}\nPassword: ${password}`
-    );
+    navigation.navigate("Home");
   };
 
   return (
@@ -35,7 +31,10 @@ export const RegistrationScreen = () => {
         placeholder={"Пароль"}
       />
       <ButtonLogin onPress={onSubmit} text={"Зареєстуватися"} />
-      <IsLogin text={"Вже є акаунт? Увійти"} />
+      <IsLogin
+        text={"Вже є акаунт? Увійти"}
+        onPress={() => navigation.navigate("LoginScreen")}
+      />
     </ContainnerRegLogin>
   );
 };

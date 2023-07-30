@@ -2,15 +2,14 @@ import { Input } from "../components/Inputs";
 import { ButtonLogin } from "../components/Buttons";
 import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
-import { Alert } from "react-native";
 import { useState } from "react";
 
-export const LoginScreen = () => {
+export const LoginScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    Alert.alert("Credentials", `Login: ${name}\nPassword: ${password}`);
+    navigation.navigate("Home");
   };
 
   return (
@@ -29,7 +28,10 @@ export const LoginScreen = () => {
       />
 
       <ButtonLogin onPress={onSubmit} text={"Увійти"} />
-      <IsLogin text={"Немає акаунту? Зареєструватися"} />
+      <IsLogin
+        text={"Немає акаунту? Зареєструватися"}
+        onPress={() => navigation.navigate("RegistrationScreen")}
+      />
     </ContainnerRegLogin>
   );
 };

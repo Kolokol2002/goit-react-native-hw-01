@@ -1,12 +1,9 @@
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-export const IsLogin = ({ text }) => {
+export const IsLogin = ({ text, onPress }) => {
   return (
     <View style={styles.container}>
-      <Pressable
-        onPress={() => Alert.alert("Button Pressed!")}
-        style={styles.link}
-      >
+      <Pressable onPress={onPress} style={styles.link}>
         <Text style={styles.text}>{text}</Text>
       </Pressable>
     </View>
