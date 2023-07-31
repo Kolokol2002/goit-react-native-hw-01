@@ -6,8 +6,10 @@ import { PostsScreen } from "./PostsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "react-native";
 import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 
 const Tabs = createBottomTabNavigator();
 
@@ -44,19 +46,26 @@ const Home = () => {
         options={{
           title: "Публікації",
           headerStyle: {
-            // backgroundColor: "#f4511e",
+            // backgroundColor: "#FFFFFF",
           },
-          headerTintColor: "#fff",
+          // headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
           },
+          headerTitleAlign: "center",
           headerRight: () => (
-            <Button
+            <Pressable
               onPress={() => alert("This is a button!")}
-              title="LogOut"
-              color="#fff"
-            />
+              // color="#fff"
+            >
+              <MaterialIcons
+                style={styles.logoutIcon}
+                name="logout"
+                size={24}
+                color="#BDBDBD"
+              />
+            </Pressable>
           ),
         }}
       />
@@ -89,6 +98,9 @@ const styles = StyleSheet.create({
   },
   tab: {
     height: 60,
+  },
+  logoutIcon: {
+    marginRight: 10,
   },
 });
 
