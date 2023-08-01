@@ -8,6 +8,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
+import { Pressable } from "react-native";
 // import * as Location from "expo-location";
 // import Geocode from "react-geocode";
 
@@ -20,10 +21,14 @@ import { ScrollView } from "react-native-gesture-handler";
 //   const address = await Geocode.fromLatLng(`${latitude}`, `${longitude}`);
 //   // console.log({ latitude, longitude });
 //   const result = `${address?.results[0]?.address_components[4]?.long_name}, ${address?.results[0]?.address_components[5]?.long_name}`;
+//   console.log(address);
 //   return result;
 // };
 
-export const PostsScreen = () => {
+export const PostsScreen = ({ navigation }) => {
+  const onToCommentsScreen = () => {
+    navigation.navigate("CommentsScreen");
+  };
   return (
     <ScrollView style={styles.container}>
       {dataPosts.map(({ _id, name, email, image, posts }) => (
@@ -43,7 +48,10 @@ export const PostsScreen = () => {
                   <Image source={{ uri: image }} style={styles.contentImage} />
                   <Text style={styles.contentName}>{name}</Text>
                   <View style={styles.contentInfoContainer}>
-                    <View style={styles.contentCommentsContainer}>
+                    <Pressable
+                      onPress={onToCommentsScreen}
+                      style={styles.contentCommentsContainer}
+                    >
                       {comments.length === 0 ? (
                         <FontAwesome
                           name="comment-0"
@@ -57,10 +65,13 @@ export const PostsScreen = () => {
                           color={"rgba(255, 108, 0, 1)"}
                         />
                       )}
-                      <Text>{comments.length}</Text>
-                    </View>
+                      <Text style={styles.contentComments}>
+                        {comments.length}
+                      </Text>
+                    </Pressable>
                     <View style={styles.contentLikesContainer}>
                       <AntDesign
+                        style={styles.contentLikesIcon}
                         name="like2"
                         size={24}
                         color={
@@ -69,20 +80,18 @@ export const PostsScreen = () => {
                             : "rgba(189, 189, 189, 1)"
                         }
                       />
-                      <Text>{likes}</Text>
+                      <Text style={styles.contentLikes}>{likes}</Text>
                     </View>
                     <View style={styles.contentLocationContainer}>
                       <EvilIcons
+                        style={styles.contentLocationIcon}
                         name="location"
                         size={24}
                         color="rgba(189, 189, 189, 1)"
                       />
-                      {/* <Text>
-                        {() =>
-                          getAddress(latitude, longitude).then((res) => res)
-                        }
-                      </Text> */}
-                      <Text>Ukraine</Text>
+                      {/* {console.log(getAddress(latitude, longitude))} */}
+                      {/* <Text>{getAddress(latitude, longitude)}</Text> */}
+                      <Text style={styles.contentLocation}>Ukraine</Text>
                     </View>
                   </View>
                 </View>
@@ -116,8 +125,12 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
   },
   authorInfoContainer: {},
-  authorName: { color: "#212121" },
-  authorEmail: { color: "rgba(33, 33, 33, 0.8)" },
+  authorName: { color: "#212121", fontWeight: 700, fontSize: 13 },
+  authorEmail: {
+    color: "rgba(33, 33, 33, 0.8)",
+    fontWeight: 400,
+    fontSize: 11,
+  },
   contentContainer: { gap: 32 },
   contentImage: {
     height: 240,
@@ -126,8 +139,8 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   contentName: {
-    fontWeight: 500,
     marginBottom: 8,
+    fontWeight: 500,
     fontSize: 16,
   },
   contentInfoContainer: {
@@ -139,10 +152,10 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  contentComments: {},
+  contentComments: { fontWeight: 400, fontSize: 16 },
   contentCommentsIcon: {},
   contentLikesContainer: { flexDirection: "row", alignItems: "center", gap: 6 },
-  contentLikes: {},
+  contentLikes: { fontWeight: 400, fontSize: 16 },
   contentLikesIcon: {},
   contentLocationContainer: {
     marginLeft: "auto",
@@ -150,7 +163,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  contentLocation: {},
+  contentLocation: { fontWeight: 400, fontSize: 16 },
   contentLocationIcon: {},
 
   contentLocation: {},

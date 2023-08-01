@@ -1,21 +1,22 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import ProfileScreen from "./ProfileScreen";
-import CreatePostsScreen from "./CreatePostsScreen";
-import { PostsScreen } from "./PostsScreen";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { Pressable } from "react-native";
+import { PostsScreen } from "../Screens/PostsScreen";
+import { ProfileScreen } from "../Screens/ProfileScreen";
+import { CreatePostsScreen } from "../Screens/CreatePostsScreen";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { PostsNavigator } from "./PostsNavigator";
 
-const Tabs = createBottomTabNavigator();
+const RootTabs = createBottomTabNavigator();
 
-const Home = () => {
+const RootTabBottomNavіgator = ({ navigation }) => {
   return (
-    <Tabs.Navigator
+    <RootTabs.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: () => {
           if (route.name === "ProfileScreen") {
@@ -40,11 +41,12 @@ const Home = () => {
         tabBarStyle: styles.tab,
       })}
     >
-      <Tabs.Screen
+      <RootTabs.Screen
         name="PostsScreen"
-        component={PostsScreen}
+        component={PostsNavigator}
         options={{
           title: "Публікації",
+          headerShown: false,
           headerStyle: {
             // backgroundColor: "#FFFFFF",
           },
@@ -56,7 +58,7 @@ const Home = () => {
           headerTitleAlign: "center",
           headerRight: () => (
             <Pressable
-              onPress={() => alert("This is a button!")}
+              onPress={() => navigation.navigate("LoginScreen")}
               // color="#fff"
             >
               <MaterialIcons
@@ -69,21 +71,26 @@ const Home = () => {
           ),
         }}
       />
-      <Tabs.Screen
+      <RootTabs.Screen
         name="CreatePostsScreen"
         options={{
           title: "Створити публікацію",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          headerTitleAlign: "center",
         }}
         component={CreatePostsScreen}
       />
-      <Tabs.Screen
+      <RootTabs.Screen
         name="ProfileScreen"
+        component={ProfileScreen}
         options={{
           headerShown: false,
         }}
-        component={ProfileScreen}
       />
-    </Tabs.Navigator>
+    </RootTabs.Navigator>
   );
 };
 
@@ -104,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default RootTabBottomNavіgator;
