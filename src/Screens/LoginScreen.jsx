@@ -9,7 +9,11 @@ export const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    navigation.navigate("Home");
+    navigation.navigate("Tabs");
+    navigation.reset({
+      index: 1,
+      routes: [{ name: "Tabs" }],
+    });
   };
 
   return (

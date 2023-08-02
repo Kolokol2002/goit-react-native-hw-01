@@ -2,24 +2,24 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
+
 import { TouchableOpacity } from "react-native";
-import { Pressable } from "react-native";
-import { PostsScreen } from "../Screens/PostsScreen";
 import { ProfileScreen } from "../Screens/ProfileScreen";
 import { CreatePostsScreen } from "../Screens/CreatePostsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { PostsStack } from "./RootNavigator";
+import { Pressable } from "react-native";
 
 const RootTabs = createBottomTabNavigator();
 
-const RootTabBottomNavіgator = ({ navigation }) => {
+export const TabsNavigation = ({ navigation }) => {
   return (
     <RootTabs.Navigator
-      initialRouteName="PostsScreen"
+      initialRouteName="PostsTabs"
       backBehavior="firstRoute"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => {
-          if (route.name === "ProfileScreen") {
+          if (route.name === "Profile") {
             return (
               <Feather
                 name="user"
@@ -29,7 +29,7 @@ const RootTabBottomNavіgator = ({ navigation }) => {
                 }
               />
             );
-          } else if (route.name === "CreatePostsScreen") {
+          } else if (route.name === "CreatePosts") {
             return (
               <View style={styles.createIconContainer}>
                 <Feather
@@ -40,7 +40,7 @@ const RootTabBottomNavіgator = ({ navigation }) => {
                 />
               </View>
             );
-          } else if (route.name === "PostsScreen") {
+          } else if (route.name === "PostsTabs") {
             return (
               <AntDesign
                 name="appstore-o"
@@ -55,11 +55,7 @@ const RootTabBottomNavіgator = ({ navigation }) => {
         tabBarLabelStyle: { display: "none" },
         tabBarButton: (props) => <TouchableOpacity {...props} />,
         tabBarStyle: styles.tab,
-        headerShown: true,
-        headerStyle: {
-          // backgroundColor: "#FFFFFF",
-        },
-        // headerTintColor: "#fff",
+        headerStyle: {},
         headerTitleStyle: {
           fontWeight: "bold",
           fontSize: 20,
@@ -68,28 +64,16 @@ const RootTabBottomNavіgator = ({ navigation }) => {
       })}
     >
       <RootTabs.Screen
-        name="PostsScreen"
-        component={PostsScreen}
+        name="PostsTabs"
+        component={PostsStack}
         options={{
           title: "Публікації",
-          // headerShown: true,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate("LoginScreen")}
-              // color="#fff"
-            >
-              <MaterialIcons
-                style={styles.logoutIcon}
-                name="logout"
-                size={24}
-                color="#BDBDBD"
-              />
-            </Pressable>
-          ),
+          headerShown: false,
         }}
       />
+
       <RootTabs.Screen
-        name="CreatePostsScreen"
+        name="CreatePosts"
         options={{
           title: "Створити публікацію",
           headerTitleStyle: {
@@ -98,11 +82,22 @@ const RootTabBottomNavіgator = ({ navigation }) => {
           },
           headerTitleAlign: "center",
           tabBarStyle: { display: "none" },
+          headerLeft: () => (
+            <Pressable onPress={() => navigation.goBack()}>
+              <AntDesign
+                style={styles.backIcon}
+                name="arrowleft"
+                size={24}
+                color="black"
+              />
+            </Pressable>
+          ),
         }}
         component={CreatePostsScreen}
       />
+
       <RootTabs.Screen
-        name="ProfileScreen"
+        name="Profile"
         component={ProfileScreen}
         options={{
           headerShown: false,
@@ -124,9 +119,7 @@ const styles = StyleSheet.create({
   tab: {
     height: 60,
   },
-  logoutIcon: {
-    marginRight: 10,
+  backIcon: {
+    paddingLeft: 15,
   },
 });
-
-export default RootTabBottomNavіgator;

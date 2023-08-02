@@ -1,10 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
-import RootNavigator from "./src/routes/RootNavigator";
+import { RootStack } from "./src/routes/RootNavigator";
 
 const App = () => {
   return (
     <NavigationContainer>
-      <RootNavigator />
+      <RootStack />
     </NavigationContainer>
   );
 };

@@ -11,7 +11,7 @@ export const RegistrationScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    navigation.navigate("PostsScreen");
+    navigation.navigate("Tabs");
   };
 
   return (

@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import dataPosts from "../../assets/generated.json";
 
-import { ScrollView } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 import { PostCard } from "../components/PostCard";
 import { Text } from "react-native";
 import { Image } from "react-native";
@@ -35,7 +35,11 @@ export const PostsScreen = ({ navigation }) => {
               <Text style={styles.authorEmail}>{email}</Text>
             </View>
           </View>
-          <PostCard navigation={navigation} posts={posts} />
+          <View style={styles.contentContainer}>
+            {posts.map((data) => (
+              <PostCard key={data._id} navigation={navigation} data={data} />
+            ))}
+          </View>
         </View>
       ))}
       <View style={styles.end}></View>
@@ -44,6 +48,7 @@ export const PostsScreen = ({ navigation }) => {
 };
 
 export const styles = StyleSheet.create({
+  contentContainer: { gap: 32 },
   post: {},
   authorContainer: {
     flexDirection: "row",
@@ -65,7 +70,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: "#FFFFFF",
-    height: "100%",
+    flex: 1,
     paddingHorizontal: 16,
     paddingBottom: 32,
   },

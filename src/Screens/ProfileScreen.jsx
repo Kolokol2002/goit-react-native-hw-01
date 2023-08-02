@@ -9,7 +9,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 
 export const ProfileScreen = ({ navigation }) => {
-  const { _id, name, email, image, posts } = profileData;
+  const { name, posts } = profileData;
   return (
     <ImageBackground source={backgroundImg}>
       <ScrollView>
@@ -17,7 +17,6 @@ export const ProfileScreen = ({ navigation }) => {
           <View style={styles.content}>
             <Pressable
               onPress={() => navigation.navigate("LoginScreen")}
-              // color="#fff"
               style={styles.logout}
             >
               <MaterialIcons
@@ -29,7 +28,11 @@ export const ProfileScreen = ({ navigation }) => {
             </Pressable>
             <PhotoBox />
             <Text style={styles.title}>{name}</Text>
-            <PostCard navigation={navigation} image={image} posts={posts} />
+            <View style={styles.contentContainer}>
+              {posts.map((data) => (
+                <PostCard key={data._id} navigation={navigation} data={data} />
+              ))}
+            </View>
             <View style={styles.end}></View>
           </View>
         </View>
@@ -39,6 +42,7 @@ export const ProfileScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  contentContainer: { gap: 32 },
   container: {
     height: "100%",
     marginTop: 100,
