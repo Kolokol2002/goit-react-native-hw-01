@@ -1,14 +1,12 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import dataPosts from "../../assets/generated.json";
-import { FlatList } from "react-native";
-import { FlatListComponent } from "react-native";
-import { Image } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { EvilIcons } from "@expo/vector-icons";
+
 import { ScrollView } from "react-native-gesture-handler";
-import { Pressable } from "react-native";
+import { PostCard } from "../components/PostCard";
+import { Text } from "react-native";
+import { Image } from "react-native";
+
 // import * as Location from "expo-location";
 // import Geocode from "react-geocode";
 
@@ -26,9 +24,6 @@ import { Pressable } from "react-native";
 // };
 
 export const PostsScreen = ({ navigation }) => {
-  const onToCommentsScreen = () => {
-    navigation.navigate("CommentsScreen");
-  };
   return (
     <ScrollView style={styles.container}>
       {dataPosts.map(({ _id, name, email, image, posts }) => (
@@ -40,64 +35,7 @@ export const PostsScreen = ({ navigation }) => {
               <Text style={styles.authorEmail}>{email}</Text>
             </View>
           </View>
-
-          <View style={styles.contentContainer}>
-            {posts.map(
-              ({ _id, image, name, comments, likes, latitude, longitude }) => (
-                <View key={_id} style={styles.content}>
-                  <Image source={{ uri: image }} style={styles.contentImage} />
-                  <Text style={styles.contentName}>{name}</Text>
-                  <View style={styles.contentInfoContainer}>
-                    <Pressable
-                      onPress={onToCommentsScreen}
-                      style={styles.contentCommentsContainer}
-                    >
-                      {comments.length === 0 ? (
-                        <FontAwesome
-                          name="comment-0"
-                          size={24}
-                          color={"rgba(189, 189, 189, 1)"}
-                        />
-                      ) : (
-                        <FontAwesome
-                          name="comment"
-                          size={24}
-                          color={"rgba(255, 108, 0, 1)"}
-                        />
-                      )}
-                      <Text style={styles.contentComments}>
-                        {comments.length}
-                      </Text>
-                    </Pressable>
-                    <View style={styles.contentLikesContainer}>
-                      <AntDesign
-                        style={styles.contentLikesIcon}
-                        name="like2"
-                        size={24}
-                        color={
-                          likes
-                            ? "rgba(255, 108, 0, 1)"
-                            : "rgba(189, 189, 189, 1)"
-                        }
-                      />
-                      <Text style={styles.contentLikes}>{likes}</Text>
-                    </View>
-                    <View style={styles.contentLocationContainer}>
-                      <EvilIcons
-                        style={styles.contentLocationIcon}
-                        name="location"
-                        size={24}
-                        color="rgba(189, 189, 189, 1)"
-                      />
-                      {/* {console.log(getAddress(latitude, longitude))} */}
-                      {/* <Text>{getAddress(latitude, longitude)}</Text> */}
-                      <Text style={styles.contentLocation}>Ukraine</Text>
-                    </View>
-                  </View>
-                </View>
-              )
-            )}
-          </View>
+          <PostCard navigation={navigation} posts={posts} />
         </View>
       ))}
       <View style={styles.end}></View>
@@ -106,12 +44,6 @@ export const PostsScreen = ({ navigation }) => {
 };
 
 export const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#FFFFFF",
-    height: "100%",
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
   post: {},
   authorContainer: {
     flexDirection: "row",
@@ -131,43 +63,12 @@ export const styles = StyleSheet.create({
     fontWeight: 400,
     fontSize: 11,
   },
-  contentContainer: { gap: 32 },
-  contentImage: {
-    height: 240,
-    width: "100%",
-    borderRadius: 8,
-    marginBottom: 8,
+  container: {
+    backgroundColor: "#FFFFFF",
+    height: "100%",
+    paddingHorizontal: 16,
+    paddingBottom: 32,
   },
-  contentName: {
-    marginBottom: 8,
-    fontWeight: 500,
-    fontSize: 16,
-  },
-  contentInfoContainer: {
-    flexDirection: "row",
-  },
-  contentCommentsContainer: {
-    marginRight: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  contentComments: { fontWeight: 400, fontSize: 16 },
-  contentCommentsIcon: {},
-  contentLikesContainer: { flexDirection: "row", alignItems: "center", gap: 6 },
-  contentLikes: { fontWeight: 400, fontSize: 16 },
-  contentLikesIcon: {},
-  contentLocationContainer: {
-    marginLeft: "auto",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  contentLocation: { fontWeight: 400, fontSize: 16 },
-  contentLocationIcon: {},
 
-  contentLocation: {},
-  contentLocation: {},
-  contentLocation: {},
   end: { height: 32 },
 });

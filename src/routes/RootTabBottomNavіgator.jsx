@@ -3,24 +3,32 @@ import { View, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { Pressable } from "react-native";
 import { PostsScreen } from "../Screens/PostsScreen";
 import { ProfileScreen } from "../Screens/ProfileScreen";
 import { CreatePostsScreen } from "../Screens/CreatePostsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { PostsNavigator } from "./PostsNavigator";
 
 const RootTabs = createBottomTabNavigator();
 
 const RootTabBottomNavіgator = ({ navigation }) => {
   return (
     <RootTabs.Navigator
+      initialRouteName="PostsScreen"
+      backBehavior="firstRoute"
       screenOptions={({ route }) => ({
-        tabBarIcon: () => {
+        tabBarIcon: ({ focused }) => {
           if (route.name === "ProfileScreen") {
-            return <Feather name="user" size={25} color="black" />;
+            return (
+              <Feather
+                name="user"
+                size={25}
+                color={
+                  focused ? "rgba(255, 108, 0, 1)" : "rgba(33, 33, 33, 0.8)"
+                }
+              />
+            );
           } else if (route.name === "CreatePostsScreen") {
             return (
               <View style={styles.createIconContainer}>
@@ -33,29 +41,38 @@ const RootTabBottomNavіgator = ({ navigation }) => {
               </View>
             );
           } else if (route.name === "PostsScreen") {
-            return <AntDesign name="appstore-o" size={25} color="black" />;
+            return (
+              <AntDesign
+                name="appstore-o"
+                size={25}
+                color={
+                  focused ? "rgba(255, 108, 0, 1)" : "rgba(33, 33, 33, 0.8)"
+                }
+              />
+            );
           }
         },
         tabBarLabelStyle: { display: "none" },
         tabBarButton: (props) => <TouchableOpacity {...props} />,
         tabBarStyle: styles.tab,
+        headerShown: true,
+        headerStyle: {
+          // backgroundColor: "#FFFFFF",
+        },
+        // headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 20,
+        },
+        headerTitleAlign: "center",
       })}
     >
       <RootTabs.Screen
         name="PostsScreen"
-        component={PostsNavigator}
+        component={PostsScreen}
         options={{
           title: "Публікації",
-          headerShown: false,
-          headerStyle: {
-            // backgroundColor: "#FFFFFF",
-          },
-          // headerTintColor: "#fff",
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 20,
-          },
-          headerTitleAlign: "center",
+          // headerShown: true,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate("LoginScreen")}
@@ -80,6 +97,7 @@ const RootTabBottomNavіgator = ({ navigation }) => {
             fontSize: 20,
           },
           headerTitleAlign: "center",
+          tabBarStyle: { display: "none" },
         }}
         component={CreatePostsScreen}
       />

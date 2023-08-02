@@ -22,9 +22,6 @@ export const CreatePostsScreen = ({ navigation }) => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       await MediaLibrary.requestPermissionsAsync();
 
-      // const test = await camera.getSupportedRatiosAsync();
-      // console.log(test);
-
       setHasPermission(status === "granted");
     })();
   }, []);
