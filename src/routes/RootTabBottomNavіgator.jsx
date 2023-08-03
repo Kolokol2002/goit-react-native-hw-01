@@ -7,8 +7,9 @@ import { TouchableOpacity } from "react-native";
 import { ProfileScreen } from "../Screens/ProfileScreen";
 import { CreatePostsScreen } from "../Screens/CreatePostsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { PostsStack } from "./RootNavigator";
+
 import { Pressable } from "react-native";
+import { PostsStack } from "./PostsNavigation";
 
 const RootTabs = createBottomTabNavigator();
 
@@ -16,7 +17,6 @@ export const TabsNavigation = ({ navigation }) => {
   return (
     <RootTabs.Navigator
       initialRouteName="PostsTabs"
-      backBehavior="firstRoute"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => {
           if (route.name === "Profile") {

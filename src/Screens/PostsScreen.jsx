@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import dataPosts from "../../assets/generated.json";
 
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import { FlatList } from "react-native-gesture-handler";
 import { PostCard } from "../components/PostCard";
 import { Text } from "react-native";
 import { Image } from "react-native";
@@ -25,25 +25,35 @@ import { Image } from "react-native";
 
 export const PostsScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
-      {dataPosts.map(({ _id, name, email, image, posts }) => (
-        <View style={styles.post} key={_id}>
-          <View style={styles.authorContainer}>
-            <Image source={{ uri: image }} style={styles.authorImage} />
-            <View style={styles.authorInfoContainer}>
-              <Text style={styles.authorName}>{name}</Text>
-              <Text style={styles.authorEmail}>{email}</Text>
+    <View style={styles.container}>
+      <FlatList
+        data={dataPosts}
+        keyExtractor={({ _id }) => _id}
+        renderItem={({ item: { _id, name, email, image, posts } }) => (
+          <View style={styles.post}>
+            <View style={styles.authorContainer}>
+              <Image source={{ uri: image }} style={styles.authorImage} />
+              <View style={styles.authorInfoContainer}>
+                <Text style={styles.authorName}>{name}</Text>
+                <Text style={styles.authorEmail}>{email}</Text>
+              </View>
+            </View>
+            <View style={styles.contentContainer}>
+              <FlatList
+                data={posts}
+                keyExtractor={({ _id }) => _id}
+                renderItem={({ item: data }) => (
+                  <>
+                    <PostCard navigation={navigation} data={data} />
+                    <View style={styles.end}></View>
+                  </>
+                )}
+              />
             </View>
           </View>
-          <View style={styles.contentContainer}>
-            {posts.map((data) => (
-              <PostCard key={data._id} navigation={navigation} data={data} />
-            ))}
-          </View>
-        </View>
-      ))}
-      <View style={styles.end}></View>
-    </ScrollView>
+        )}
+      />
+    </View>
   );
 };
 

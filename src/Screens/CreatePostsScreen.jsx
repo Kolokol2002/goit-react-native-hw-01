@@ -10,10 +10,14 @@ import { KeyboardAvoidingView } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 export const CreatePostsScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [disabled, setDisabled] = useState(true);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [camera, setCamera] = useState(null);
 
@@ -25,8 +29,16 @@ export const CreatePostsScreen = ({ navigation }) => {
       setHasPermission(status === "granted");
     })();
   }, []);
+
   const onPress = () => {
-    navigation.navigate("PostsScreen");
+    setLocation("");
+    setName("");
+    navigation.goBack();
+  };
+  const onClear = () => {
+    // navigation.navigate("PostsScreen");
+    setLocation("");
+    setName("");
   };
 
   const onOpenCamera = () => {
@@ -62,7 +74,12 @@ export const CreatePostsScreen = ({ navigation }) => {
         <Text style={styles.text}>Завантажте фото</Text>
       </TouchableOpacity>
 
-      <TextInput style={styles.inputName} placeholder="Назва..." />
+      <TextInput
+        value={name}
+        onChange={setName}
+        style={styles.inputName}
+        placeholder="Назва..."
+      />
 
       {/* <TextInput style={styles.inputLocation} placeholder="Місцевість..." /> */}
       <View style={styles.inputLocationContainer}>
@@ -77,6 +94,8 @@ export const CreatePostsScreen = ({ navigation }) => {
           style={styles.inputLocationView}
         >
           <TextInput
+            value={location}
+            onChange={setLocation}
             // onBlur={onBlur}
             // onFocus={onFocus}
             // value={value}
@@ -88,16 +107,38 @@ export const CreatePostsScreen = ({ navigation }) => {
         </KeyboardAvoidingView>
       </View>
       <Pressable
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? "#ff6a00d3" : "#FF6C00",
-          },
-          styles.button,
-        ]}
+        style={({ pressed }) => {
+          return [
+            {
+              backgroundColor: pressed
+                ? "#ff6a00d3"
+                : disabled
+                ? "#e9b189"
+                : "#FF6C00",
+            },
+            styles.button,
+          ];
+        }}
+        disabled={disabled}
         onPress={onPress}
       >
         <Text>Опублікувати</Text>
       </Pressable>
+
+      <View style={styles.buttonClearContainer}>
+        <Pressable
+          style={({ pressed, disabled }) => [
+            {
+              backgroundColor: pressed ? "#dfdfdf" : "rgba(246, 246, 246, 1)",
+            },
+            styles.buttonClear,
+          ]}
+          // disabled={true}
+          onPress={onClear}
+        >
+          <Feather name="trash-2" size={24} color="black" />
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -110,7 +151,7 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   boxImage: { marginBottom: 32 },
-  imageContainer: { height: 267, overflow: "hidden" },
+  imageContainer: { height: 267, overflow: "hidden", marginBottom: 8 },
 
   image: {
     zIndex: 1,
@@ -134,7 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   icon: {},
-  text: {},
+  text: { fontSize: 16, color: "rgba(189, 189, 189, 1)" },
   inputName: {
     height: 50,
     borderBottomWidth: 1,
@@ -160,7 +201,23 @@ const styles = StyleSheet.create({
   inputLocationView: { width: "100%" },
   button: {
     height: 51,
-    backgroundColor: "rgba(255, 108, 0, 1)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 100,
+  },
+  buttonClearContainer: {
+    flex: 1,
+    // height: 40,
+    // width: 70,
+    // backgroundColor: "rgba(246, 246, 246, 1)",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    // borderRadius: 100,
+  },
+  buttonClear: {
+    height: 40,
+    width: 70,
+    // backgroundColor: "rgba(246, 246, 246, 1)",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 100,

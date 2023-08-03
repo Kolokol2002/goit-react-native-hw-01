@@ -1,17 +1,26 @@
 import React from "react";
-import { ScrollView } from "react-native";
 import { Image } from "react-native";
 import { View, Text, StyleSheet } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 
 export const CommentsScreen = ({ route }) => {
   const { comments, image } = route.params;
   console.log(comments);
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <Image source={{ uri: image }} style={styles.postImage} />
-        <View style={styles.commentsContainer}>
-          {comments.map(({ authorId, authorAvatar, text, dataCreate }) => (
+      <FlatList
+        data={comments}
+        keyExtractor={({ _id }) => _id}
+        ListHeaderComponent={
+          <>
+            <View style={styles.start}></View>
+            <Image source={{ uri: image }} style={styles.postImage} />
+          </>
+        }
+        renderItem={({
+          item: { authorId, authorAvatar, text, dataCreate },
+        }) => (
+          <View style={styles.commentsContainer}>
             <View style={styles.commentContainer} key={authorId}>
               <Image
                 source={{ uri: authorAvatar }}
@@ -22,19 +31,18 @@ export const CommentsScreen = ({ route }) => {
                 <Text style={styles.data}>{dataCreate}</Text>
               </View>
             </View>
-          ))}
-        </View>
-      </ScrollView>
+          </View>
+        )}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
+    flex: 1,
     backgroundColor: "#fffff",
     paddingHorizontal: 16,
-    paddingTop: 32,
   },
   postImage: {
     height: 240,
@@ -43,7 +51,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   authorAvatar: { width: 28, height: 28, borderRadius: 50 },
-  commentsContainer: { gap: 24, paddingBottom: 32 },
+  commentsContainer: { marginBottom: 24 },
   commentContainer: {
     flexDirection: "row",
     gap: 16,
@@ -68,4 +76,5 @@ const styles = StyleSheet.create({
     color: "rgba(189, 189, 189, 1)",
     marginLeft: "auto",
   },
+  start: { height: 32 },
 });
