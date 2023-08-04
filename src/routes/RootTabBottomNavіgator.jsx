@@ -9,14 +9,18 @@ import { CreatePostsScreen } from "../Screens/CreatePostsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { Pressable } from "react-native";
-import { PostsStack } from "./PostsNavigation";
+import { useNavigation } from "@react-navigation/native";
+import { PostsScreen } from "../Screens/PostsScreen";
+import { MaterialIcons } from "@expo/vector-icons";
 
-const RootTabs = createBottomTabNavigator();
+const Tabs = createBottomTabNavigator();
 
-export const TabsNavigation = ({ navigation }) => {
+export const TabsNavigation = () => {
+  const navigation = useNavigation();
+
   return (
-    <RootTabs.Navigator
-      initialRouteName="PostsTabs"
+    <Tabs.Navigator
+      initialRouteName="Posts"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => {
           if (route.name === "Profile") {
@@ -40,7 +44,7 @@ export const TabsNavigation = ({ navigation }) => {
                 />
               </View>
             );
-          } else if (route.name === "PostsTabs") {
+          } else if (route.name === "Posts") {
             return (
               <AntDesign
                 name="appstore-o"
@@ -55,7 +59,21 @@ export const TabsNavigation = ({ navigation }) => {
         tabBarLabelStyle: { display: "none" },
         tabBarButton: (props) => <TouchableOpacity {...props} />,
         tabBarStyle: styles.tab,
-        headerStyle: {},
+        headerStyle: {
+          borderBottomColor: "rgba(0, 0, 0, 0.3)",
+          borderBottomWidth: 0.5,
+          // shadowColor: "none",
+          // shadowOpacity: 0,
+          shadowOffset: {
+            width: 30,
+            height: 10,
+          },
+          // shadowColor: "black",
+          shadowOpacity: 0,
+          // shadowRadius: 3.84,
+          elevation: 0,
+        },
+        // headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: "bold",
           fontSize: 20,
@@ -63,24 +81,29 @@ export const TabsNavigation = ({ navigation }) => {
         headerTitleAlign: "center",
       })}
     >
-      <RootTabs.Screen
-        name="PostsTabs"
-        component={PostsStack}
+      <Tabs.Screen
+        name="Posts"
+        component={PostsScreen}
         options={{
           title: "Публікації",
-          headerShown: false,
+          headerRight: () => (
+            <Pressable onPress={() => navigation.navigate("LoginScreen")}>
+              <MaterialIcons
+                style={styles.logoutIcon}
+                name="logout"
+                size={24}
+                color="#BDBDBD"
+              />
+            </Pressable>
+          ),
+          // headerShown: false,
         }}
       />
 
-      <RootTabs.Screen
+      <Tabs.Screen
         name="CreatePosts"
         options={{
           title: "Створити публікацію",
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 20,
-          },
-          headerTitleAlign: "center",
           tabBarStyle: { display: "none" },
           headerLeft: () => (
             <Pressable onPress={() => navigation.goBack()}>
@@ -96,14 +119,14 @@ export const TabsNavigation = ({ navigation }) => {
         component={CreatePostsScreen}
       />
 
-      <RootTabs.Screen
+      <Tabs.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
           headerShown: false,
         }}
       />
-    </RootTabs.Navigator>
+    </Tabs.Navigator>
   );
 };
 
@@ -121,5 +144,8 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     paddingLeft: 15,
+  },
+  logoutIcon: {
+    marginRight: 10,
   },
 });

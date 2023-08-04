@@ -7,15 +7,18 @@ import { View, ImageBackground, Text } from "react-native";
 import backgroundImg from "../image/backgroundImg.jpg";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-export const ProfileScreen = ({ navigation }) => {
+export const ProfileScreen = () => {
   const { name, posts } = profileData;
+  const navigation = useNavigation();
   return (
     <ImageBackground style={styles.backgroundImg} source={backgroundImg}>
       <View style={styles.container}>
         <FlatList
           data={posts}
           keyExtractor={({ _id }) => _id}
+          showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <>
               <View style={styles.start}></View>
@@ -38,7 +41,7 @@ export const ProfileScreen = ({ navigation }) => {
           }
           renderItem={({ item: data }) => (
             <View style={styles.contentContainer}>
-              <PostCard navigation={navigation} data={data} />
+              <PostCard data={data} />
               <View style={styles.end}></View>
             </View>
           )}

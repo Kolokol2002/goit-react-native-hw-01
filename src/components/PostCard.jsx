@@ -7,11 +7,12 @@ import { StyleSheet } from "react-native";
 import { View } from "react-native";
 import { Text } from "react-native";
 import { FlatList } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export const PostCard = ({
-  navigation,
   data: { image, name, comments, likes, latitude, longitude },
 }) => {
+  const navigation = useNavigation();
   const onToCommentsScreen = (comments, image) => {
     navigation.navigate("Comments", { comments, image });
   };
@@ -27,12 +28,14 @@ export const PostCard = ({
         >
           {comments.length === 0 ? (
             <FontAwesome
+              style={styles.contentCommentsIcon}
               name="comment-0"
               size={24}
               color={"rgba(189, 189, 189, 1)"}
             />
           ) : (
             <FontAwesome
+              style={styles.contentCommentsIcon}
               name="comment"
               size={24}
               color={"rgba(255, 108, 0, 1)"}
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   contentComments: { fontWeight: 400, fontSize: 16 },
-  contentCommentsIcon: {},
+  contentCommentsIcon: { transform: [{ scaleX: -1 }] },
   contentLikesContainer: { flexDirection: "row", alignItems: "center", gap: 6 },
   contentLikes: { fontWeight: 400, fontSize: 16 },
   contentLikesIcon: {},

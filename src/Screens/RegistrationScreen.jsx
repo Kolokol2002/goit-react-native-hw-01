@@ -4,14 +4,16 @@ import { PhotoBox } from "../components/PhotoBox";
 import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
-export const RegistrationScreen = ({ navigation }) => {
+export const RegistrationScreen = () => {
+  const navigation = useNavigation();
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    navigation.navigate("Tabs");
+    navigation.navigate("Home");
   };
 
   return (

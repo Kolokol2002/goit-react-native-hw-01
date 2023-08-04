@@ -3,16 +3,18 @@ import { ButtonLogin } from "../components/Buttons";
 import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
-export const LoginScreen = ({ navigation }) => {
+export const LoginScreen = () => {
+  const navigation = useNavigation();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmit = () => {
-    navigation.navigate("Tabs");
+    navigation.navigate("Home");
     navigation.reset({
       index: 1,
-      routes: [{ name: "Tabs" }],
+      routes: [{ name: "Home" }],
     });
   };
 

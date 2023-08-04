@@ -6,6 +6,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { PostCard } from "../components/PostCard";
 import { Text } from "react-native";
 import { Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 // import * as Location from "expo-location";
 // import Geocode from "react-geocode";
@@ -23,12 +24,14 @@ import { Image } from "react-native";
 //   return result;
 // };
 
-export const PostsScreen = ({ navigation }) => {
+export const PostsScreen = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <FlatList
         data={dataPosts}
         keyExtractor={({ _id }) => _id}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item: { _id, name, email, image, posts } }) => (
           <View style={styles.post}>
             <View style={styles.authorContainer}>
@@ -42,9 +45,10 @@ export const PostsScreen = ({ navigation }) => {
               <FlatList
                 data={posts}
                 keyExtractor={({ _id }) => _id}
+                showsVerticalScrollIndicator={false}
                 renderItem={({ item: data }) => (
                   <>
-                    <PostCard navigation={navigation} data={data} />
+                    <PostCard data={data} />
                     <View style={styles.end}></View>
                   </>
                 )}
@@ -82,7 +86,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 32,
   },
 
   end: { height: 32 },

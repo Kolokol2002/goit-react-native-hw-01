@@ -11,8 +11,10 @@ import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-export const CreatePostsScreen = ({ navigation }) => {
+export const CreatePostsScreen = () => {
+  const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [name, setName] = useState("");

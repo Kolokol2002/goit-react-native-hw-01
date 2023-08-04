@@ -5,12 +5,12 @@ import { FlatList } from "react-native-gesture-handler";
 
 export const CommentsScreen = ({ route }) => {
   const { comments, image } = route.params;
-  console.log(comments);
   return (
     <View style={styles.container}>
       <FlatList
         data={comments}
         keyExtractor={({ _id }) => _id}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
             <View style={styles.start}></View>
