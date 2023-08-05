@@ -52,7 +52,12 @@ export const PostCard = ({
           />
           <Text style={styles.contentLikes}>{likes}</Text>
         </View>
-        <View style={styles.contentLocationContainer}>
+        <Pressable
+          style={styles.contentLocationContainer}
+          onPress={() =>
+            navigation.navigate("Map", { cords: { latitude, longitude } })
+          }
+        >
           <EvilIcons
             style={styles.contentLocationIcon}
             name="location"
@@ -62,7 +67,7 @@ export const PostCard = ({
           {/* {console.log(getAddress(latitude, longitude))} */}
           {/* <Text>{getAddress(latitude, longitude)}</Text> */}
           <Text style={styles.contentLocation}>Ukraine</Text>
-        </View>
+        </Pressable>
       </View>
     </View>
   );

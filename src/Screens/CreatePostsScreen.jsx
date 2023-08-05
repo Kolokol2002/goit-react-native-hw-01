@@ -1,89 +1,108 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "react-native";
+import { Image } from "react-native";
 import { TextInput } from "react-native";
 import { View, Text, StyleSheet } from "react-native";
-import { ButtonLogin } from "../components/Buttons";
 import { Pressable } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
 import { KeyboardAvoidingView } from "react-native";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
+import * as Location from "expo-location";
 import { TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 export const CreatePostsScreen = () => {
-  const navigation = useNavigation();
-  const [hasPermission, setHasPermission] = useState(null);
+  // const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
   const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [disabled, setDisabled] = useState(true);
-  const [type, setType] = useState(Camera.Constants.Type.back);
-  const [camera, setCamera] = useState(null);
+  const [locationName, setLocationName] = useState("");
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
+      await Camera.requestCameraPermissionsAsync();
       await MediaLibrary.requestPermissionsAsync();
+      await Location.requestForegroundPermissionsAsync();
 
-      setHasPermission(status === "granted");
+      // setHasPermission(status === "granted");
     })();
   }, []);
 
-  const onPress = () => {
-    setLocation("");
+  const onPublishPost = async () => {
+    const { coords } = await Location.getCurrentPositionAsync();
+
+    const data = {
+      name,
+      locationName,
+      imageUri,
+      coords,
+    };
+
+    console.log(data);
+    setCameraRef(null);
+    setImageUri(null);
     setName("");
-    navigation.goBack();
-  };
-  const onClear = () => {
-    // navigation.navigate("PostsScreen");
-    setLocation("");
-    setName("");
+    setLocationName("");
+    navigation.reset({
+      index: 1,
+      routes: [{ name: "Posts" }],
+    });
+    // navigation.jumpTo("Posts");
   };
 
-  const onOpenCamera = () => {
-    // navigation.navigate("PostsScreen");
-    setType(
-      type === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
-    );
+  const onOpenCamera = async () => {
+    const { uri } = await cameraRef.takePictureAsync();
+    const asset = await MediaLibrary.createAssetAsync(uri);
+    setImageUri(asset);
   };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.boxImage} onPress={() => onOpenCamera()}>
-        <View style={styles.imageContainer}>
-          <Camera
-            style={styles.image}
-            type={type}
-            ref={(ref) => {
-              setCamera(ref);
-            }}
-            ratio="3:2"
-          >
-            <View style={styles.containerIcon}>
-              <FontAwesome
-                name="camera"
-                size={24}
-                color="rgba(189, 189, 189, 1)"
-                style={styles.icon}
-              />
-            </View>
-          </Camera>
-        </View>
-        <Text style={styles.text}>Завантажте фото</Text>
-      </TouchableOpacity>
+      <View style={styles.boxImage}>
+        <View style={[{}, styles.imageContainer]}>
+          {imageUri === null ? (
+            <Camera
+              style={styles.image}
+              // type={type}
+              ref={(ref) => {
+                setCameraRef(ref);
+              }}
+              ratio="3:2"
+            />
+          ) : (
+            <Image source={{ uri: imageUri.uri }} style={styles.mainImage} />
+          )}
 
+          <TouchableOpacity
+            style={styles.containerIcon}
+            onPress={() => onOpenCamera()}
+          >
+            <FontAwesome
+              name="camera"
+              size={24}
+              color="rgba(189, 189, 189, 1)"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        </View>
+        {imageUri === null ? (
+          <Text style={styles.text}>Завантажте фото</Text>
+        ) : (
+          <TouchableOpacity onPress={() => setImageUri(null)}>
+            <Text style={styles.text}>Редагувати фото</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       <TextInput
         value={name}
-        onChange={setName}
+        onChangeText={setName}
         style={styles.inputName}
         placeholder="Назва..."
       />
-
-      {/* <TextInput style={styles.inputLocation} placeholder="Місцевість..." /> */}
       <View style={styles.inputLocationContainer}>
         <EvilIcons
           style={styles.inputLocationIcon}
@@ -96,8 +115,8 @@ export const CreatePostsScreen = () => {
           style={styles.inputLocationView}
         >
           <TextInput
-            value={location}
-            onChange={setLocation}
+            value={locationName}
+            onChangeText={setLocationName}
             // onBlur={onBlur}
             // onFocus={onFocus}
             // value={value}
@@ -108,35 +127,37 @@ export const CreatePostsScreen = () => {
           />
         </KeyboardAvoidingView>
       </View>
+      {/* // Publish post */}
       <Pressable
         style={({ pressed }) => {
           return [
             {
-              backgroundColor: pressed
-                ? "#ff6a00d3"
-                : disabled
-                ? "#e9b189"
-                : "#FF6C00",
+              backgroundColor:
+                imageUri === null
+                  ? "#e9b189"
+                  : pressed
+                  ? "#ff6a00d3"
+                  : "#FF6C00",
             },
             styles.button,
           ];
         }}
-        disabled={disabled}
-        onPress={onPress}
+        disabled={imageUri === null}
+        onPress={onPublishPost}
       >
         <Text>Опублікувати</Text>
       </Pressable>
-
+      {/* // Clear image */}
       <View style={styles.buttonClearContainer}>
         <Pressable
-          style={({ pressed, disabled }) => [
+          style={({ pressed }) => [
             {
               backgroundColor: pressed ? "#dfdfdf" : "rgba(246, 246, 246, 1)",
             },
             styles.buttonClear,
           ]}
           // disabled={true}
-          onPress={onClear}
+          onPress={() => setImageUri(null)}
         >
           <Feather name="trash-2" size={24} color="black" />
         </Pressable>
@@ -148,29 +169,40 @@ export const CreatePostsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
-    height: "100%",
+    // height: "100%",
+    flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 32,
   },
   boxImage: { marginBottom: 32 },
-  imageContainer: { height: 267, overflow: "hidden", marginBottom: 8 },
+  imageContainer: {
+    height: 267,
+    overflow: "hidden",
+    marginBottom: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   image: {
-    zIndex: 1,
+    zIndex: 0,
     position: "absolute",
     top: -120,
     bottom: -120,
     right: 0,
     left: 0,
+    // height: "100%",
     // backgroundColor: "rgba(232, 232, 232, 1)",
     borderRadius: 8,
     marginBottom: 8,
-    alignItems: "center",
-    justifyContent: "center",
   },
   containerIcon: {
     width: 60,
     height: 60,
+    position: "absolute",
+    // top: 0,
+    // left: 0,
+    // bottom: 0,
+    // right: 0,
     backgroundColor: "rgba(255, 255, 255, 1)",
     borderRadius: 30,
     alignItems: "center",
@@ -229,4 +261,5 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     fontSize: 16,
   },
+  mainImage: { height: "100%", width: "100%" },
 });
