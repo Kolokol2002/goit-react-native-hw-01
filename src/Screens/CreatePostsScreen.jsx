@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Image } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Alert, Image } from "react-native";
 import { TextInput } from "react-native";
 import { View, Text, StyleSheet } from "react-native";
 import { Pressable } from "react-native";
@@ -18,7 +18,8 @@ import {
 } from "@react-navigation/native";
 
 export const CreatePostsScreen = () => {
-  const [hasPermission, setHasPermission] = useState(true);
+  const [hasPermissionСamera, sethasPermissionСamera] = useState(false);
+  const [hasPermissionLocation, setHasPermissionLocation] = useState(true);
   const [cameraRef, setCameraRef] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [name, setName] = useState("");
@@ -34,7 +35,8 @@ export const CreatePostsScreen = () => {
         const media = await MediaLibrary.requestPermissionsAsync();
         const location = await Location.requestForegroundPermissionsAsync();
 
-        // setHasPermission(camera.granted && media.granted && location.granted);
+        sethasPermissionСamera(camera.granted && media.granted);
+        setHasPermissionLocation(location.granted);
       })();
 
       return () => {
@@ -47,28 +49,40 @@ export const CreatePostsScreen = () => {
   );
 
   const onPublishPost = async () => {
-    const { coords } = await Location.getCurrentPositionAsync();
+    if (hasPermissionLocation) {
+      const { coords } = await Location.getCurrentPositionAsync();
 
-    const data = {
-      name,
-      locationName,
-      imageUri,
-      coords,
-    };
+      const data = {
+        name,
+        locationName,
+        imageUri,
+        coords,
+      };
 
-    console.log(data);
+      console.log(data);
 
-    navigation.reset({
-      index: 1,
-      routes: [{ name: "Posts" }],
-    });
+      navigation.reset({
+        index: 1,
+        routes: [{ name: "Posts" }],
+      });
+    } else {
+      Alert.alert(
+        "App needs access to your location so we can have geolocation on post."
+      );
+    }
   };
 
-  const onOpenCamera = async () => {
-    if (hasPermission) {
-      const { uri } = await cameraRef.takePictureAsync();
+  const onTakePhoto = async () => {
+    if (hasPermissionСamera) {
+      const { uri } = await cameraRef.takePictureAsync({
+        quality: 1,
+      });
       const asset = await MediaLibrary.createAssetAsync(uri);
       setImageUri(asset);
+    } else {
+      Alert.alert(
+        "App needs access to your camera so you can take awesome pictures."
+      );
     }
   };
 
@@ -78,16 +92,18 @@ export const CreatePostsScreen = () => {
         <View style={styles.boxImage}>
           <View
             style={[
-              { backgroundColor: !hasPermission && "rgba(232, 232, 232, 1)" },
+              {
+                backgroundColor:
+                  !hasPermissionСamera && "rgba(232, 232, 232, 1)",
+              },
               styles.imageContainer,
             ]}
           >
             {imageUri === null ? (
               <>
-                {hasPermission && (
+                {hasPermissionСamera && (
                   <Camera
                     style={styles.image}
-                    // type={type}
                     ref={(ref) => {
                       setCameraRef(ref);
                     }}
@@ -103,24 +119,22 @@ export const CreatePostsScreen = () => {
               <TouchableOpacity
                 style={[
                   {
-                    backgroundColor: hasPermission
+                    backgroundColor: hasPermissionСamera
                       ? "rgba(255, 255, 255, 0.3)"
                       : "rgba(255, 255, 255, 1)",
                   },
                   styles.containerIcon,
                 ]}
-                // disabled={}
-                onPress={() => onOpenCamera()}
+                onPress={() => onTakePhoto()}
               >
                 <FontAwesome
                   name="camera"
                   size={24}
                   color={
-                    !hasPermission
+                    !hasPermissionСamera
                       ? "rgba(189, 189, 189, 1)"
                       : "rgba(255, 255, 255, 1)"
                   }
-                  // color="rgba(189, 189, 189, 1)"
                   style={styles.icon}
                 />
               </TouchableOpacity>
@@ -135,6 +149,7 @@ export const CreatePostsScreen = () => {
             </TouchableOpacity>
           )}
         </View>
+
         <TextInput
           value={name}
           onChangeText={setName}
@@ -155,17 +170,12 @@ export const CreatePostsScreen = () => {
             <TextInput
               value={locationName}
               onChangeText={setLocationName}
-              // onBlur={onBlur}
-              // onFocus={onFocus}
-              // value={value}
-              // onChangeText={onChangeText}
-              // secureTextEntry={togglePassword}
               placeholder={"Місцевість..."}
               style={styles.inputLocation}
             />
           </KeyboardAvoidingView>
         </View>
-        {/* // Publish post */}
+
         <Pressable
           style={({ pressed }) => {
             return [
@@ -185,7 +195,7 @@ export const CreatePostsScreen = () => {
         >
           <Text>Опублікувати</Text>
         </Pressable>
-        {/* // Clear image */}
+
         <View style={styles.buttonClearContainer}>
           <Pressable
             style={({ pressed }) => [
@@ -194,7 +204,6 @@ export const CreatePostsScreen = () => {
               },
               styles.buttonClear,
             ]}
-            // disabled={true}
             onPress={() => setImageUri(null)}
           >
             <Feather name="trash-2" size={24} color="black" />
@@ -208,7 +217,6 @@ export const CreatePostsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
-    // height: "100%",
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 32,
@@ -221,16 +229,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   image: {
-    zIndex: 0,
-    position: "absolute",
-    top: -120,
-    bottom: -120,
-    right: 0,
-    left: 0,
-    // height: "100%",
-    // backgroundColor: "rgba(232, 232, 232, 1)",
+    height: "180%",
+    minHeight: "100%",
+    width: "100%",
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -238,11 +240,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     position: "absolute",
-    // top: 0,
-    // left: 0,
-    // bottom: 0,
-    // right: 0,
-    // backgroundColor: "rgba(255, 255, 255, 1)",
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
@@ -280,17 +277,12 @@ const styles = StyleSheet.create({
   },
   buttonClearContainer: {
     flex: 1,
-    // height: 40,
-    // width: 70,
-    // backgroundColor: "rgba(246, 246, 246, 1)",
     alignItems: "center",
     justifyContent: "flex-end",
-    // borderRadius: 100,
   },
   buttonClear: {
     height: 40,
     width: 70,
-    // backgroundColor: "rgba(246, 246, 246, 1)",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 100,
