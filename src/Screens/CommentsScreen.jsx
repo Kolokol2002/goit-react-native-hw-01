@@ -1,9 +1,35 @@
-import React from "react";
-import { Image } from "react-native";
+import React, { useState } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Pressable,
+  TextInput,
+} from "react-native";
 import { View, Text, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { AntDesign } from "@expo/vector-icons";
 
 export const CommentsScreen = ({ route }) => {
+  const [borderColor, setBorderColor] = useState("rgba(232, 232, 232, 1)");
+  const [backgroundColor, setBackgroundColor] = useState(
+    "rgba(246, 246, 246, 1)"
+  );
+  const [commentText, setCommentText] = useState("");
+
+  const onBlur = () => {
+    setBackgroundColor("rgba(246, 246, 246, 1)");
+    setBorderColor("rgba(232, 232, 232, 1)");
+  };
+  const onFocus = () => {
+    setBackgroundColor("#FFFFFF");
+    setBorderColor("#FF6C00");
+  };
+
+  const onSendText = () => {
+    console.log(commentText);
+    setCommentText("");
+  };
+
   const { comments, image } = route.params;
   return (
     <View style={styles.container}>
@@ -34,6 +60,39 @@ export const CommentsScreen = ({ route }) => {
           </View>
         )}
       />
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+      >
+        <TextInput
+          onBlur={onBlur}
+          onFocus={onFocus}
+          value={commentText}
+          onChangeText={setCommentText}
+          style={[
+            { backgroundColor: backgroundColor, borderColor: borderColor },
+            styles.input,
+          ]}
+          placeholder={"Коментувати..."}
+        />
+        <Pressable
+          onPress={onSendText}
+          style={({ pressed }) => {
+            return [
+              {
+                backgroundColor: pressed ? "#ff6a00ba" : "rgba(255, 108, 0, 1)",
+              },
+              styles.sendButton,
+            ];
+          }}
+        >
+          <AntDesign
+            style={styles.sendIcon}
+            name="arrowup"
+            size={20}
+            color="rgba(255, 255, 255, 1)"
+          />
+        </Pressable>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -77,4 +136,23 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
   },
   start: { height: 32 },
+  input: {
+    marginVertical: 16,
+    height: 50,
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 50,
+  },
+  sendButton: {
+    position: "absolute",
+    zIndex: 3,
+    width: 34,
+    height: 34,
+    borderRadius: 100,
+    top: "30%",
+    right: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sendIcon: {},
 });

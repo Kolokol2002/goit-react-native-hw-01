@@ -16,6 +16,7 @@ import {
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native";
 
 export const CreatePostsScreen = () => {
   const [hasPermissionСamera, sethasPermissionСamera] = useState(false);
@@ -24,6 +25,8 @@ export const CreatePostsScreen = () => {
   const [imageUri, setImageUri] = useState(null);
   const [name, setName] = useState("");
   const [locationName, setLocationName] = useState("");
+
+  const [loaderTakePhoto, setLoaderTakePhoto] = useState(false);
 
   const navigation = useNavigation();
   const isFocused = useIsFocused();
@@ -74,16 +77,28 @@ export const CreatePostsScreen = () => {
 
   const onTakePhoto = async () => {
     if (hasPermissionСamera) {
-      const { uri } = await cameraRef.takePictureAsync({
-        quality: 1,
-      });
-      const asset = await MediaLibrary.createAssetAsync(uri);
-      setImageUri(asset);
+      if (imageUri === null) {
+        setLoaderTakePhoto(true);
+        const { uri } = await cameraRef.takePictureAsync({
+          quality: 1,
+        });
+        const asset = await MediaLibrary.createAssetAsync(uri);
+        setImageUri(asset);
+        setLoaderTakePhoto(false);
+      } else {
+        setImageUri(null);
+      }
     } else {
       Alert.alert(
         "App needs access to your camera so you can take awesome pictures."
       );
     }
+  };
+
+  const onClearAll = () => {
+    setImageUri(null);
+    setName("");
+    setLocationName("");
   };
 
   return (
@@ -115,18 +130,19 @@ export const CreatePostsScreen = () => {
               <Image source={{ uri: imageUri?.uri }} style={styles.mainImage} />
             )}
 
-            {imageUri === null && (
-              <TouchableOpacity
-                style={[
-                  {
-                    backgroundColor: hasPermissionСamera
-                      ? "rgba(255, 255, 255, 0.3)"
-                      : "rgba(255, 255, 255, 1)",
-                  },
-                  styles.containerIcon,
-                ]}
-                onPress={() => onTakePhoto()}
-              >
+            <TouchableOpacity
+              style={[
+                {
+                  backgroundColor: hasPermissionСamera
+                    ? "rgba(255, 255, 255, 0.3)"
+                    : "rgba(255, 255, 255, 1)",
+                },
+                styles.containerIcon,
+              ]}
+              onPress={() => onTakePhoto()}
+              disabled={loaderTakePhoto}
+            >
+              {!loaderTakePhoto ? (
                 <FontAwesome
                   name="camera"
                   size={24}
@@ -137,8 +153,10 @@ export const CreatePostsScreen = () => {
                   }
                   style={styles.icon}
                 />
-              </TouchableOpacity>
-            )}
+              ) : (
+                <ActivityIndicator size="large" color="#FF6C00" />
+              )}
+            </TouchableOpacity>
           </View>
 
           {imageUri === null ? (
@@ -204,7 +222,7 @@ export const CreatePostsScreen = () => {
               },
               styles.buttonClear,
             ]}
-            onPress={() => setImageUri(null)}
+            onPress={onClearAll}
           >
             <Feather name="trash-2" size={24} color="black" />
           </Pressable>
