@@ -1,15 +1,18 @@
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { RootStack } from "./src/routes/RootNavigator";
-import { Appearance } from "react-native";
-
-// const theme = Appearance.setColorScheme("ligth");
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./src/redux/store";
 
 const App = () => {
   return (
     <NavigationContainer theme={DefaultTheme}>
-      <RootStack />
+      <Provider store={store}>
+        {/* <PersistGate loading={null} persistor={persistor}> */}
+        <RootStack />
+        {/* </PersistGate> */}
+      </Provider>
     </NavigationContainer>
   );
 };
-
 export default App;

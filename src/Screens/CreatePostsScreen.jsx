@@ -17,6 +17,9 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import { ActivityIndicator } from "react-native";
+import { writeDataToFirestore } from "../firebase/authFirebase";
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "../redux/authSlice";
 
 export const CreatePostsScreen = () => {
   const [hasPermissionСamera, sethasPermissionСamera] = useState(false);
@@ -30,6 +33,7 @@ export const CreatePostsScreen = () => {
 
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
@@ -53,21 +57,21 @@ export const CreatePostsScreen = () => {
 
   const onPublishPost = async () => {
     if (hasPermissionLocation) {
-      const { coords } = await Location.getCurrentPositionAsync();
-
+      console.log("isLoading true");
       const data = {
-        name,
-        locationName,
-        imageUri,
-        coords,
+        text: name,
+        location_name: locationName,
+        uri: imageUri.uri,
       };
 
-      console.log(data);
+      const info = await writeDataToFirestore(data);
+      dispatch(setUserInfo(info));
 
       navigation.reset({
         index: 1,
         routes: [{ name: "Posts" }],
       });
+      console.log("isLoading false");
     } else {
       Alert.alert(
         "App needs access to your location so we can have geolocation on post."

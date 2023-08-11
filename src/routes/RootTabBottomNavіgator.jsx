@@ -12,11 +12,21 @@ import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { PostsScreen } from "../Screens/PostsScreen";
 import { MaterialIcons } from "@expo/vector-icons";
+import { auth } from "../../config";
+import { signOut } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { setLogOut } from "../redux/authSlice";
 
 const Tabs = createBottomTabNavigator();
 
 export const TabsNavigation = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const onLoginOut = () => {
+    signOut(auth);
+    dispatch(setLogOut());
+  };
 
   return (
     <Tabs.Navigator
@@ -62,18 +72,13 @@ export const TabsNavigation = () => {
         headerStyle: {
           borderBottomColor: "rgba(0, 0, 0, 0.3)",
           borderBottomWidth: 0.5,
-          // shadowColor: "none",
-          // shadowOpacity: 0,
           shadowOffset: {
             width: 30,
             height: 10,
           },
-          // shadowColor: "black",
           shadowOpacity: 0,
-          // shadowRadius: 3.84,
           elevation: 0,
         },
-        // headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: "bold",
           fontSize: 20,
@@ -87,7 +92,7 @@ export const TabsNavigation = () => {
         options={{
           title: "Публікації",
           headerRight: () => (
-            <Pressable onPress={() => navigation.navigate("LoginScreen")}>
+            <Pressable onPress={onLoginOut}>
               <MaterialIcons
                 style={styles.logoutIcon}
                 name="logout"
@@ -96,7 +101,6 @@ export const TabsNavigation = () => {
               />
             </Pressable>
           ),
-          // headerShown: false,
         }}
       />
 

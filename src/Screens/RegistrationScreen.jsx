@@ -5,15 +5,21 @@ import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { createUserFirestore } from "../firebase/authFirebase";
 
 export const RegistrationScreen = () => {
   const navigation = useNavigation();
   const [name, setName] = useState("");
-  const [mail, setMail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onSubmit = () => {
-    navigation.navigate("Home");
+  const onSubmit = async () => {
+    const data = {
+      name: name,
+      email: email,
+      profile_picture: "",
+    };
+    createUserFirestore(data);
   };
 
   return (
@@ -21,8 +27,8 @@ export const RegistrationScreen = () => {
       <PhotoBox />
       <Input value={name} onChangeText={setName} placeholder={"Логін"} />
       <Input
-        value={mail}
-        onChangeText={setMail}
+        value={email}
+        onChangeText={setEmail}
         typeInput={"email"}
         placeholder={"Адреса електронної пошти"}
       />

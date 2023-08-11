@@ -6,11 +6,10 @@ import { Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { View } from "react-native";
 import { Text } from "react-native";
-import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 export const PostCard = ({
-  data: { image, name, comments, likes, latitude, longitude },
+  data: { image, text, comments, likes, geolocation, location_name },
 }) => {
   const navigation = useNavigation();
   const onToCommentsScreen = (comments, image) => {
@@ -20,16 +19,18 @@ export const PostCard = ({
   return (
     <View style={styles.content}>
       <Image source={{ uri: image }} style={styles.contentImage} />
-      <Text style={styles.contentName}>{name}</Text>
+      <Text style={styles.contentName}>
+        {text ? text : "Автор не залишив опису("}
+      </Text>
       <View style={styles.contentInfoContainer}>
         <Pressable
           onPress={() => onToCommentsScreen(comments, image)}
           style={styles.contentCommentsContainer}
         >
-          {comments.length === 0 ? (
+          {comments?.length === 0 ? (
             <FontAwesome
               style={styles.contentCommentsIcon}
-              name="comment-0"
+              name="comment-o"
               size={24}
               color={"rgba(189, 189, 189, 1)"}
             />
@@ -41,21 +42,28 @@ export const PostCard = ({
               color={"rgba(255, 108, 0, 1)"}
             />
           )}
-          <Text style={styles.contentComments}>{comments.length}</Text>
+          <Text style={styles.contentComments}>{comments?.length}</Text>
         </Pressable>
         <View style={styles.contentLikesContainer}>
           <AntDesign
             style={styles.contentLikesIcon}
             name="like2"
             size={24}
-            color={likes ? "rgba(255, 108, 0, 1)" : "rgba(189, 189, 189, 1)"}
+            color={
+              likes.length ? "rgba(255, 108, 0, 1)" : "rgba(189, 189, 189, 1)"
+            }
           />
-          <Text style={styles.contentLikes}>{likes}</Text>
+          <Text style={styles.contentLikes}>{likes.length}</Text>
         </View>
         <Pressable
           style={styles.contentLocationContainer}
           onPress={() =>
-            navigation.navigate("Map", { cords: { latitude, longitude } })
+            navigation.navigate("Map", {
+              cords: {
+                latitude: geolocation.latitude,
+                longitude: geolocation.longitude,
+              },
+            })
           }
         >
           <EvilIcons
@@ -64,9 +72,9 @@ export const PostCard = ({
             size={24}
             color="rgba(189, 189, 189, 1)"
           />
-          {/* {console.log(getAddress(latitude, longitude))} */}
-          {/* <Text>{getAddress(latitude, longitude)}</Text> */}
-          <Text style={styles.contentLocation}>Ukraine</Text>
+          <Text style={styles.contentLocation}>
+            {location_name ? location_name : "Location"}
+          </Text>
         </Pressable>
       </View>
     </View>

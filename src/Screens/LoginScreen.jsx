@@ -4,25 +4,26 @@ import { IsLogin } from "../components/IsLogin";
 import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { signInFirestore } from "../firebase/authFirebase";
 
 export const LoginScreen = () => {
   const navigation = useNavigation();
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onSubmit = () => {
-    navigation.navigate("Home");
-    navigation.reset({
-      index: 1,
-      routes: [{ name: "Home" }],
-    });
+  const onSubmit = async () => {
+    const data = {
+      email,
+      password,
+    };
+    signInFirestore(data);
   };
 
   return (
     <ContainnerRegLogin title={"Увійти"}>
       <Input
-        value={name}
-        onChangeText={setName}
+        value={email}
+        onChangeText={setEmail}
         typeInput={"email"}
         placeholder={"Адреса електронної пошти"}
       />
