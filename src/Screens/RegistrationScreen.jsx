@@ -6,9 +6,12 @@ import { ContainnerRegLogin } from "../components/ContainnerRegLogin";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { createUserFirestore } from "../firebase/authFirebase";
+import * as ImagePicker from "expo-image-picker";
+import { Alert } from "react-native";
 
 export const RegistrationScreen = () => {
   const navigation = useNavigation();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,14 +20,30 @@ export const RegistrationScreen = () => {
     const data = {
       name: name,
       email: email,
-      profile_picture: "",
+      password: password,
+      profile_picture: avatar,
     };
     createUserFirestore(data);
   };
 
+  const onPickAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    } else {
+      setAvatar("");
+    }
+  };
+
   return (
     <ContainnerRegLogin title={"Реєстрація"}>
-      <PhotoBox />
+      <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
       <Input value={name} onChangeText={setName} placeholder={"Логін"} />
       <Input
         value={email}

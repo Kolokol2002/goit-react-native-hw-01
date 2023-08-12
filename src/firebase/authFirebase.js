@@ -5,6 +5,13 @@ import {
   getDocs,
   arrayUnion,
   setDoc,
+  addDoc,
+  collectionGroup,
+  Timestamp,
+  query,
+  where,
+  onSnapshot,
+  arrayRemove,
 } from "firebase/firestore";
 import { auth, db, storage } from "../../config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -27,52 +34,72 @@ import * as Location from "expo-location";
 
 export const writeDataToFirestore = async (data) => {
   try {
-    const { text, location_name, uri } = data;
+    const { text, location_name, uri, geolocation } = data;
 
-    const { coords } = await Location.getCurrentPositionAsync();
     const { downloadUrl } = await sendImageToStorage({
       name: nanoid(),
       uri: uri,
     });
 
     const postData = {
+      authorId: auth.currentUser.uid,
+      authorName: auth.currentUser.displayName,
+      authorEmail: auth.currentUser.email,
+      authorImage: auth.currentUser.photoURL,
       text: text,
       location_name: location_name,
       image: downloadUrl,
-      geolocation: coords,
+      geolocation: geolocation,
+      likes: [],
+      comments: [],
+      timestamp: Timestamp.fromDate(new Date()),
     };
 
-    const refPosts = doc(db, "users", auth.currentUser?.uid);
-    await updateDoc(refPosts, {
-      posts: arrayUnion({ id: nanoid(), likes: [], comments: [], ...postData }),
-    });
+    const refPosts = collection(db, "posts");
 
-    return await getDataFromFirestore();
+    await addDoc(refPosts, postData);
+
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;
   }
 };
 
-export const getDataFromFirestore = async () => {
+export const getAllPostsFirestore = async () => {
   try {
-    return await getDocs(collection(db, "users")).then((querySnapshot) => {
+    const newData = await getDocs(collectionGroup(db, "posts")).then(
+      (querySnapshot) => {
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+
+        return newData;
+      }
+    );
+    return newData;
+  } catch (e) {
+    console.log("firebaseFetchData error: ", e);
+  }
+};
+
+export const getPostsCurrentUserFirestore = async () => {
+  try {
+    const posts = query(
+      collection(db, "posts"),
+      where("authorId", "==", auth.currentUser.uid)
+    );
+    let result = [];
+    const newData = onSnapshot(posts, (querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
       }));
-      const currentUserData = newData.find(
-        ({ id }) => id === auth.currentUser.uid
-      );
 
-      const infoUsers = {
-        currentUser: currentUserData,
-        allUsers: newData,
-      };
-      return infoUsers;
+      result = newData;
     });
   } catch (e) {
-    console.log("firebaseFetchData error: ", e);
+    console.log("firebaseFetchDataCurrent error: ", e);
   }
 };
 
@@ -107,16 +134,24 @@ export const sendImageToStorage = async (file) => {
 
 export const createUserFirestore = async (data) => {
   try {
-    const { email, name, profile_picture } = data;
+    const { email, password, name, profile_picture } = data;
     await createUserWithEmailAndPassword(auth, email, password);
 
-    await updateProfile(auth.currentUser, { displayName: name });
-    await setDoc(doc(db, "users", auth.currentUser?.uid), {
-      name: name,
-      email: email,
-      profile_picture: profile_picture,
-      posts: [],
+    const { downloadUrl } = await sendImageToStorage({
+      name: nanoid(),
+      uri: profile_picture,
     });
+
+    await updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: downloadUrl,
+    });
+    // await setDoc(doc(db, "users", auth.currentUser?.uid), {
+    //   name: name,
+    //   email: email,
+    //   profile_picture: profile_picture,
+    //   // posts: [],
+    // });
   } catch (error) {
     console.log("Reg Error: ", error.message);
     return;
@@ -127,6 +162,20 @@ export const signInFirestore = async (data) => {
   try {
     const { email, password } = data;
     await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    console.log("Reg Error: ", error.message);
+    return;
+  }
+};
+
+export const likeFirestore = async (postId, isLike) => {
+  try {
+    const refPosts = doc(db, "posts", postId);
+    await updateDoc(refPosts, {
+      likes: isLike
+        ? arrayRemove({ authorId: auth.currentUser.uid })
+        : arrayUnion({ authorId: auth.currentUser.uid }),
+    });
   } catch (error) {
     console.log("Reg Error: ", error.message);
     return;

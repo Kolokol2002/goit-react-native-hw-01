@@ -58,20 +58,18 @@ export const CreatePostsScreen = () => {
   const onPublishPost = async () => {
     if (hasPermissionLocation) {
       console.log("isLoading true");
+      // const { coords } = await Location.getCurrentPositionAsync();
       const data = {
         text: name,
         location_name: locationName,
         uri: imageUri.uri,
+        geolocation: null,
       };
-
-      const info = await writeDataToFirestore(data);
-      dispatch(setUserInfo(info));
-
+      await writeDataToFirestore(data);
       navigation.reset({
         index: 1,
         routes: [{ name: "Posts" }],
       });
-      console.log("isLoading false");
     } else {
       Alert.alert(
         "App needs access to your location so we can have geolocation on post."

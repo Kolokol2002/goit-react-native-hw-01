@@ -1,2 +1,2 @@
-export const getInfoCurrentUser = (state) => state.auth.currentUser;
-export const getInfoAllUser = (state) => state.auth.allUsers;
+export const getInfoCurrentUser = (state) => state.auth.userInfo;
+export const getAllPosts = (state) => state.auth.posts;

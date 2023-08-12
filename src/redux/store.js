@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authReducer } from "./authSlice";
+import { Timestamp } from "firebase/firestore";
 
 // const persistConfig = {
 //   key: "root",
@@ -25,9 +26,7 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
+      serializableCheck: false,
     }),
 });
 

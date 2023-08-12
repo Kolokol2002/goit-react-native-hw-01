@@ -1,13 +1,17 @@
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import { Image } from "react-native";
+import blankProlife from "../image/profile.png";
 
-export const PhotoBox = () => {
+export const PhotoBox = ({ onPickAvatar, avatar }) => {
   return (
     <View style={styles.container}>
-      <Pressable
-        style={styles.buttonIcon}
-        onPress={() => Alert.alert("Button Pressed!")}
-      >
+      {avatar ? (
+        <Image source={{ uri: avatar }} style={styles.authorImage} />
+      ) : (
+        <Image source={blankProlife} style={styles.authorImageBlank} />
+      )}
+      <Pressable style={styles.buttonIcon} onPress={onPickAvatar}>
         <AntDesign
           style={styles.iconAddPhoto}
           name="pluscircleo"
@@ -22,15 +26,19 @@ export const PhotoBox = () => {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
+    zIndex: 2,
     top: -60,
     alignSelf: "center",
     width: 120,
     height: 120,
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonIcon: {
     position: "absolute",
+    zIndex: 2,
     bottom: 10,
     right: -12.5,
     width: 25,
@@ -39,4 +47,6 @@ const styles = StyleSheet.create({
   iconAddPhoto: {
     color: "#FF6C00",
   },
+  authorImage: { width: "100%", height: "100%", borderRadius: 16 },
+  authorImageBlank: { width: 75, height: 75 },
 });

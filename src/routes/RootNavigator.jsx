@@ -7,8 +7,7 @@ import { useDispatch } from "react-redux";
 import { auth } from "../../config";
 import { useNavigation } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
-import { setUserInfo } from "../redux/authSlice";
-import { getDataFromFirestore } from "../firebase/authFirebase";
+import { setLogOut, setUserInfo } from "../redux/authSlice";
 
 const Stack = createStackNavigator();
 
@@ -20,14 +19,16 @@ export const RootStack = () => {
     console.log("Loading");
 
     if (user) {
-      const data = await getDataFromFirestore();
-      dispatch(setUserInfo(data));
+
+      const { displayName, email, photoURL } = auth.currentUser;
+      dispatch(setUserInfo({ displayName, email, photoURL }));
 
       navigation.reset({
         index: 0,
         routes: [{ name: "Home" }],
       });
     } else {
+      dispatch(setLogOut());
       navigation.reset({
         index: 0,
         routes: [{ name: "LoginScreen" }],
