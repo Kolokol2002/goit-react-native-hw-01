@@ -16,7 +16,11 @@ import {
 import { auth, db, storage } from "../../config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { nanoid } from "@reduxjs/toolkit";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import * as Location from "expo-location";
 
 // const updateDataInFirestore = async (collectionName, docId) => {
@@ -58,7 +62,6 @@ export const writeDataToFirestore = async (data) => {
     const refPosts = collection(db, "posts");
 
     await addDoc(refPosts, postData);
-
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;

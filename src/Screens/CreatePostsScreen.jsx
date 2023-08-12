@@ -19,7 +19,8 @@ import {
 import { ActivityIndicator } from "react-native";
 import { writeDataToFirestore } from "../firebase/authFirebase";
 import { useDispatch } from "react-redux";
-import { setUserInfo } from "../redux/authSlice";
+import { setIsLoading, setUserInfo } from "../redux/authSlice";
+import { Loader } from "../components/Loader";
 
 export const CreatePostsScreen = () => {
   const [hasPermissionСamera, sethasPermissionСamera] = useState(false);
@@ -56,8 +57,8 @@ export const CreatePostsScreen = () => {
   );
 
   const onPublishPost = async () => {
+    dispatch(setIsLoading(true));
     if (hasPermissionLocation) {
-      console.log("isLoading true");
       // const { coords } = await Location.getCurrentPositionAsync();
       const data = {
         text: name,
@@ -75,6 +76,7 @@ export const CreatePostsScreen = () => {
         "App needs access to your location so we can have geolocation on post."
       );
     }
+    dispatch(setIsLoading(false));
   };
 
   const onTakePhoto = async () => {
@@ -229,6 +231,7 @@ export const CreatePostsScreen = () => {
             <Feather name="trash-2" size={24} color="black" />
           </Pressable>
         </View>
+        <Loader />
       </View>
     )
   );

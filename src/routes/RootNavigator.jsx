@@ -7,7 +7,8 @@ import { useDispatch } from "react-redux";
 import { auth } from "../../config";
 import { useNavigation } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
-import { setLogOut, setUserInfo } from "../redux/authSlice";
+import { setIsLoading, setLogOut, setUserInfo } from "../redux/authSlice";
+import { useEffect } from "react";
 
 const Stack = createStackNavigator();
 
@@ -15,11 +16,12 @@ export const RootStack = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(setIsLoading(true));
+  }, []);
+
   onAuthStateChanged(auth, async (user) => {
-    console.log("Loading");
-
     if (user) {
-
       const { displayName, email, photoURL } = auth.currentUser;
       dispatch(setUserInfo({ displayName, email, photoURL }));
 
@@ -34,7 +36,7 @@ export const RootStack = () => {
         routes: [{ name: "LoginScreen" }],
       });
     }
-    console.log("Cool");
+    dispatch(setIsLoading(false));
   });
 
   return (

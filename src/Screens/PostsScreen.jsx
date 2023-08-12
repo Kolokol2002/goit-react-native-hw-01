@@ -8,13 +8,18 @@ import blankProlife from "../image/profile.png";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../config";
+import { useDispatch } from "react-redux";
+import { setIsLoading } from "../redux/authSlice";
+import { Loader } from "../components/Loader";
 
 export const PostsScreen = () => {
   const [posts, setPosts] = useState([]);
   const isFocused = useIsFocused();
+  const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(setIsLoading(true));
       const unsubscribe = (() => {
         const posts = collection(db, "posts");
 
@@ -23,8 +28,11 @@ export const PostsScreen = () => {
             ...doc.data(),
             id: doc.id,
           }));
-
-          setPosts(newData);
+          const sortedData = newData.sort(
+            (a, b) => b.timestamp.seconds - a.timestamp.seconds
+          );
+          setPosts(sortedData);
+          dispatch(setIsLoading(false));
         });
       })();
       return () => {
@@ -74,6 +82,7 @@ export const PostsScreen = () => {
             </View>
           }
         />
+        <Loader />
       </View>
     )
   );

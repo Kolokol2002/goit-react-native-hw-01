@@ -10,22 +10,26 @@ import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { getInfoCurrentUser } from "../redux/selectors";
 import { auth, db } from "../../config";
-import { setLogOut } from "../redux/authSlice";
+import { setIsLoading, setLogOut } from "../redux/authSlice";
 import { useCallback, useEffect, useState } from "react";
 import { signOut, updateProfile } from "firebase/auth";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { sendImageToStorage } from "../firebase/authFirebase";
 import { nanoid } from "@reduxjs/toolkit";
+import { Loader } from "../components/Loader";
+import { LogOutButton } from "../components/LogOut";
 
 export const ProfileScreen = () => {
   const user = useSelector(getInfoCurrentUser);
   const [posts, setPosts] = useState([]);
   const isFocused = useIsFocused();
   const [avatar, setAvatar] = useState("");
+  const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(setIsLoading(true));
       const unsubscribe = () => {
         const posts = query(
           collection(db, "posts"),
@@ -37,12 +41,14 @@ export const ProfileScreen = () => {
             id: doc.id,
           }));
 
-          setPosts(newData);
+          const sortedData = newData.sort(
+            (a, b) => b.timestamp.seconds - a.timestamp.seconds
+          );
+          setPosts(sortedData);
+          dispatch(setIsLoading(false));
         });
       };
-      return () => {
-        unsubscribe();
-      };
+      unsubscribe();
     }, [])
   );
 
@@ -50,8 +56,6 @@ export const ProfileScreen = () => {
     const { photoURL } = auth.currentUser;
     setAvatar(photoURL);
   }, [avatar]);
-
-  const dispatch = useDispatch();
 
   const onLoginOut = () => {
     signOut(auth);
@@ -101,14 +105,7 @@ export const ProfileScreen = () => {
                 <View style={styles.start}></View>
                 <View style={styles.header}>
                   <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
-                  <Pressable onPress={onLoginOut} style={styles.logout}>
-                    <MaterialIcons
-                      style={styles.logoutIcon}
-                      name="logout"
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                  </Pressable>
+                  <LogOutButton style={styles.logout} />
                   <Text style={styles.title}>{user.name}</Text>
                 </View>
               </>
@@ -135,6 +132,7 @@ export const ProfileScreen = () => {
             }
           />
         </View>
+        <Loader />
       </ImageBackground>
     )
   );
@@ -171,7 +169,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginRight: 16,
   },
-  logoutIcon: {},
   emptyTextContainer: {
     backgroundColor: "#FFFFFF",
     height: "100%",

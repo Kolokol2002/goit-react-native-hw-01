@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { createUserFirestore } from "../firebase/authFirebase";
 import * as ImagePicker from "expo-image-picker";
-import { Alert } from "react-native";
+import { Loader } from "../components/Loader";
 
 export const RegistrationScreen = () => {
   const navigation = useNavigation();
@@ -15,6 +15,7 @@ export const RegistrationScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState("");
 
   const onSubmit = async () => {
     const data = {
@@ -42,26 +43,29 @@ export const RegistrationScreen = () => {
   };
 
   return (
-    <ContainnerRegLogin title={"Реєстрація"}>
-      <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
-      <Input value={name} onChangeText={setName} placeholder={"Логін"} />
-      <Input
-        value={email}
-        onChangeText={setEmail}
-        typeInput={"email"}
-        placeholder={"Адреса електронної пошти"}
-      />
-      <Input
-        value={password}
-        onChangeText={setPassword}
-        typeInput={"password"}
-        placeholder={"Пароль"}
-      />
-      <ButtonLogin onPress={onSubmit} text={"Зареєстуватися"} />
-      <IsLogin
-        text={"Вже є акаунт? Увійти"}
-        onPress={() => navigation.navigate("LoginScreen")}
-      />
-    </ContainnerRegLogin>
+    <>
+      <ContainnerRegLogin title={"Реєстрація"}>
+        <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
+        <Input value={name} onChangeText={setName} placeholder={"Логін"} />
+        <Input
+          value={email}
+          onChangeText={setEmail}
+          typeInput={"email"}
+          placeholder={"Адреса електронної пошти"}
+        />
+        <Input
+          value={password}
+          onChangeText={setPassword}
+          typeInput={"password"}
+          placeholder={"Пароль"}
+        />
+        <ButtonLogin onPress={onSubmit} text={"Зареєстуватися"} />
+        <IsLogin
+          text={"Вже є акаунт? Увійти"}
+          onPress={() => navigation.navigate("LoginScreen")}
+        />
+      </ContainnerRegLogin>
+      <Loader />
+    </>
   );
 };

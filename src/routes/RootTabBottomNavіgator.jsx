@@ -16,17 +16,12 @@ import { auth } from "../../config";
 import { signOut } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setLogOut } from "../redux/authSlice";
+import { LogOutButton } from "../components/LogOut";
 
 const Tabs = createBottomTabNavigator();
 
 export const TabsNavigation = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-
-  const onLoginOut = () => {
-    signOut(auth);
-    dispatch(setLogOut());
-  };
 
   return (
     <Tabs.Navigator
@@ -91,16 +86,7 @@ export const TabsNavigation = () => {
         component={PostsScreen}
         options={{
           title: "Публікації",
-          headerRight: () => (
-            <Pressable onPress={onLoginOut}>
-              <MaterialIcons
-                style={styles.logoutIcon}
-                name="logout"
-                size={24}
-                color="#BDBDBD"
-              />
-            </Pressable>
-          ),
+          headerRight: () => <LogOutButton style={styles.logoutIcon} />,
         }}
       />
 
