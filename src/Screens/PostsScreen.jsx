@@ -32,9 +32,9 @@ export const PostsScreen = () => {
             (a, b) => b.timestamp.seconds - a.timestamp.seconds
           );
           setPosts(sortedData);
-          dispatch(setIsLoading(false));
         });
       })();
+      dispatch(setIsLoading(false));
       return () => {
         unsubscribe();
       };

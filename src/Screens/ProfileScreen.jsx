@@ -4,16 +4,21 @@ import { FlatList } from "react-native-gesture-handler";
 import { PostCard } from "../components/PostCard";
 import { View, ImageBackground, Text } from "react-native";
 import backgroundImg from "../image/backgroundImg.jpg";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable } from "react-native";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { getInfoCurrentUser } from "../redux/selectors";
 import { auth, db } from "../../config";
-import { setIsLoading, setLogOut } from "../redux/authSlice";
+import { setIsLoading } from "../redux/authSlice";
 import { useCallback, useEffect, useState } from "react";
-import { signOut, updateProfile } from "firebase/auth";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { sendImageToStorage } from "../firebase/authFirebase";
 import { nanoid } from "@reduxjs/toolkit";
@@ -57,11 +62,6 @@ export const ProfileScreen = () => {
     setAvatar(photoURL);
   }, [avatar]);
 
-  const onLoginOut = () => {
-    signOut(auth);
-    dispatch(setLogOut());
-  };
-
   const onPickAvatar = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -75,14 +75,22 @@ export const ProfileScreen = () => {
         name: nanoid(),
         uri: result.assets[0].uri,
       });
-
-      await updateProfile(auth.currentUser, {
-        photoURL: downloadUrl,
-      });
-      setAvatar(downloadUrl);
+      await updateAvatar(downloadUrl);
     } else {
-      setAvatar("");
+      await updateAvatar("");
     }
+  };
+
+  const updateAvatar = async (avatarUrl) => {
+    await updateProfile(auth.currentUser, {
+      photoURL: avatarUrl,
+    });
+    const updates = posts.map(async ({ id }) => {
+      const refPosts = doc(db, "posts", id);
+      return await updateDoc(refPosts, { authorImage: avatarUrl });
+    });
+    setAvatar(avatarUrl);
+    // await Promise.all(updates);
   };
 
   return (
@@ -106,7 +114,7 @@ export const ProfileScreen = () => {
                 <View style={styles.header}>
                   <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
                   <LogOutButton style={styles.logout} />
-                  <Text style={styles.title}>{user.name}</Text>
+                  <Text style={styles.title}>{user?.name}</Text>
                 </View>
               </>
             }

@@ -19,7 +19,7 @@ import {
 import { ActivityIndicator } from "react-native";
 import { writeDataToFirestore } from "../firebase/authFirebase";
 import { useDispatch } from "react-redux";
-import { setIsLoading, setUserInfo } from "../redux/authSlice";
+import { setIsLoading } from "../redux/authSlice";
 import { Loader } from "../components/Loader";
 
 export const CreatePostsScreen = () => {
@@ -39,19 +39,25 @@ export const CreatePostsScreen = () => {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        const camera = await Camera.requestCameraPermissionsAsync();
+        // await cameraRef.resumePreview();
+        // const camera = await Camera.requestCameraPermissionsAsync();
+        const camera = await Camera.requestCameraPermissionsAsync({
+          canAskAgain: true,
+        });
         const media = await MediaLibrary.requestPermissionsAsync();
         const location = await Location.requestForegroundPermissionsAsync();
+        console.log(cameraRef);
 
         sethasPermissionСamera(camera.granted && media.granted);
         setHasPermissionLocation(location.granted);
       })();
 
-      return () => {
-        navigation.reset({
-          index: 1,
-          routes: [{ name: "Posts" }],
-        });
+      return async () => {
+        // await cameraRef.pausePreview();
+        // navigation.reset({
+        //   index: 1,
+        //   routes: [{ name: "Posts" }],
+        // });
       };
     }, [])
   );
@@ -67,10 +73,11 @@ export const CreatePostsScreen = () => {
         geolocation: null,
       };
       await writeDataToFirestore(data);
-      navigation.reset({
-        index: 1,
-        routes: [{ name: "Posts" }],
-      });
+      // navigation.reset({
+      //   index: 1,
+      //   routes: [{ name: "Posts" }],
+      // });
+      navigation.goBack();
     } else {
       Alert.alert(
         "App needs access to your location so we can have geolocation on post."

@@ -2,15 +2,9 @@ import {
   collection,
   updateDoc,
   doc,
-  getDocs,
   arrayUnion,
-  setDoc,
   addDoc,
-  collectionGroup,
   Timestamp,
-  query,
-  where,
-  onSnapshot,
   arrayRemove,
 } from "firebase/firestore";
 import { auth, db, storage } from "../../config";
@@ -21,20 +15,6 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import * as Location from "expo-location";
-
-// const updateDataInFirestore = async (collectionName, docId) => {
-//   try {
-//     const ref = doc(db, collectionName, docId);
-
-//     await updateDoc(ref, {
-//       comments: [],
-//     });
-//     console.log("document updated");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 export const writeDataToFirestore = async (data) => {
   try {
@@ -65,44 +45,6 @@ export const writeDataToFirestore = async (data) => {
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;
-  }
-};
-
-export const getAllPostsFirestore = async () => {
-  try {
-    const newData = await getDocs(collectionGroup(db, "posts")).then(
-      (querySnapshot) => {
-        const newData = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-
-        return newData;
-      }
-    );
-    return newData;
-  } catch (e) {
-    console.log("firebaseFetchData error: ", e);
-  }
-};
-
-export const getPostsCurrentUserFirestore = async () => {
-  try {
-    const posts = query(
-      collection(db, "posts"),
-      where("authorId", "==", auth.currentUser.uid)
-    );
-    let result = [];
-    const newData = onSnapshot(posts, (querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-
-      result = newData;
-    });
-  } catch (e) {
-    console.log("firebaseFetchDataCurrent error: ", e);
   }
 };
 
@@ -149,12 +91,6 @@ export const createUserFirestore = async (data) => {
       displayName: name,
       photoURL: downloadUrl,
     });
-    // await setDoc(doc(db, "users", auth.currentUser?.uid), {
-    //   name: name,
-    //   email: email,
-    //   profile_picture: profile_picture,
-    //   // posts: [],
-    // });
   } catch (error) {
     console.log("Reg Error: ", error.message);
     return;
@@ -178,6 +114,25 @@ export const likeFirestore = async (postId, isLike) => {
       likes: isLike
         ? arrayRemove({ authorId: auth.currentUser.uid })
         : arrayUnion({ authorId: auth.currentUser.uid }),
+    });
+  } catch (error) {
+    console.log("Reg Error: ", error.message);
+    return;
+  }
+};
+
+export const sendCommentFirestore = async ({ text, postId }) => {
+  try {
+    const refComments = doc(db, "posts", postId);
+    const sendData = {
+      id: nanoid(),
+      text: text,
+      authorId: auth.currentUser.uid,
+      authorAvatar: auth.currentUser.photoURL,
+      timestamp: Timestamp.fromDate(new Date()),
+    };
+    await updateDoc(refComments, {
+      comments: arrayUnion(sendData),
     });
   } catch (error) {
     console.log("Reg Error: ", error.message);

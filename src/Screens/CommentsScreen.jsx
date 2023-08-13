@@ -1,13 +1,22 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Pressable,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { View, Text, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { auth, db } from "../../config";
+import { sendCommentFirestore } from "../firebase/authFirebase";
+import moment, { locale } from "moment/moment";
+import "moment/min/locales";
 
 export const CommentsScreen = ({ route }) => {
   const [borderColor, setBorderColor] = useState("rgba(232, 232, 232, 1)");
@@ -15,6 +24,39 @@ export const CommentsScreen = ({ route }) => {
     "rgba(246, 246, 246, 1)"
   );
   const [commentText, setCommentText] = useState("");
+
+  const [comments, setComments] = useState([]);
+  const [image, setImage] = useState("");
+  const dispatch = useDispatch();
+
+  const { postId } = route.params;
+  useFocusEffect(
+    useCallback(() => {
+      // dispatch(setIsLoading(true));
+      const unsubscribe = (() => {
+        const comments = doc(db, "posts", postId);
+
+        return onSnapshot(comments, (querySnapshot) => {
+          const { comments, image } = querySnapshot.data();
+
+          const res = moment.unix(comments[0].timestamp.seconds);
+          const res2 = moment(res).format("DD MMMM, YYYY | HH:mm");
+          const filteredData = comments
+            .sort((a, b) => a.timestamp.seconds - b.timestamp.seconds)
+            .map((data) => ({
+              ...data,
+              timestamp: res2,
+            }));
+          setComments(filteredData);
+          setImage(image);
+        });
+      })();
+      // dispatch(setIsLoading(false));
+      return () => {
+        unsubscribe();
+      };
+    }, [])
+  );
 
   const onBlur = () => {
     setBackgroundColor("rgba(246, 246, 246, 1)");
@@ -25,36 +67,58 @@ export const CommentsScreen = ({ route }) => {
     setBorderColor("#FF6C00");
   };
 
-  const onSendText = () => {
-    console.log(commentText);
+  const onSendText = async () => {
+    await sendCommentFirestore({
+      text: commentText,
+      postId: postId,
+    });
     setCommentText("");
+    onBlur();
+    Keyboard.dismiss();
   };
 
-  const { comments, image } = route.params;
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={onBlur}>
       <FlatList
         data={comments}
-        keyExtractor={({ _id }) => _id}
+        keyExtractor={({ id }) => id}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <>
             <View style={styles.start}></View>
-            <Image source={{ uri: image }} style={styles.postImage} />
+            {image && (
+              <Image source={{ uri: image }} style={styles.postImage} />
+            )}
           </>
         }
-        renderItem={({
-          item: { authorId, authorAvatar, text, dataCreate },
-        }) => (
+        renderItem={({ item: { authorId, authorAvatar, text, timestamp } }) => (
           <View style={styles.commentsContainer}>
-            <View style={styles.commentContainer} key={authorId}>
+            <View
+              style={[
+                {
+                  flexDirection:
+                    authorId === auth.currentUser.uid ? "row-reverse" : "row",
+                },
+                styles.commentContainer,
+              ]}
+            >
               <Image
                 source={{ uri: authorAvatar }}
                 style={styles.authorAvatar}
               />
               <View style={styles.textContainer}>
                 <Text style={styles.text}>{text}</Text>
-                <Text style={styles.data}>{dataCreate}</Text>
+                <Text
+                  style={[
+                    {
+                      marginLeft:
+                        authorId !== auth.currentUser.uid ? "auto" : 0,
+                    },
+                    styles.data,
+                  ]}
+                >
+                  {timestamp}
+                </Text>
               </View>
             </View>
           </View>
@@ -93,7 +157,7 @@ export const CommentsScreen = ({ route }) => {
           />
         </Pressable>
       </KeyboardAvoidingView>
-    </View>
+    </Pressable>
   );
 };
 
@@ -112,7 +176,6 @@ const styles = StyleSheet.create({
   authorAvatar: { width: 28, height: 28, borderRadius: 50 },
   commentsContainer: { marginBottom: 24 },
   commentContainer: {
-    flexDirection: "row",
     gap: 16,
   },
   textContainer: {
@@ -128,12 +191,12 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     color: "rgba(33, 33, 33, 1)",
     width: "100%",
+    marginBottom: 8,
   },
   data: {
     fontSize: 10,
     fontWeight: 400,
     color: "rgba(189, 189, 189, 1)",
-    marginLeft: "auto",
   },
   start: { height: 32 },
   input: {

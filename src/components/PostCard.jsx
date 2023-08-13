@@ -35,8 +35,8 @@ export const PostCard = ({
     }, [likes])
   );
 
-  const onToCommentsScreen = (comments, image) => {
-    navigation.navigate("Comments", { comments, image });
+  const onToCommentsScreen = () => {
+    navigation.navigate("Comments", { postId: id });
   };
 
   const fillStyle = useAnimatedStyle(() => {
@@ -92,7 +92,7 @@ export const PostCard = ({
       </Text>
       <View style={styles.contentInfoContainer}>
         <Pressable
-          onPress={() => onToCommentsScreen(comments, image)}
+          onPress={onToCommentsScreen}
           style={styles.contentCommentsContainer}
         >
           {comments?.length === 0 ? (

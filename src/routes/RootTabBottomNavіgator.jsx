@@ -11,11 +11,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { PostsScreen } from "../Screens/PostsScreen";
-import { MaterialIcons } from "@expo/vector-icons";
-import { auth } from "../../config";
-import { signOut } from "firebase/auth";
-import { useDispatch } from "react-redux";
-import { setLogOut } from "../redux/authSlice";
 import { LogOutButton } from "../components/LogOut";
 
 const Tabs = createBottomTabNavigator();
