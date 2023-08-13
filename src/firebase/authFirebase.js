@@ -6,6 +6,8 @@ import {
   addDoc,
   Timestamp,
   arrayRemove,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { auth, db, storage } from "../../config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -29,7 +31,6 @@ export const writeDataToFirestore = async (data) => {
       authorId: auth.currentUser.uid,
       authorName: auth.currentUser.displayName,
       authorEmail: auth.currentUser.email,
-      authorImage: auth.currentUser.photoURL,
       text: text,
       location_name: location_name,
       image: downloadUrl,
@@ -63,7 +64,7 @@ export const sendImageToStorage = async (file) => {
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       },
       (error) => {
-        console.log(error);
+        console.log("error", error);
         reject(error);
       },
       async () => {
@@ -91,6 +92,14 @@ export const createUserFirestore = async (data) => {
       displayName: name,
       photoURL: downloadUrl,
     });
+
+    const userData = {
+      authorAvatar: downloadUrl,
+    };
+
+    const refPosts = doc(db, "users", auth.currentUser.uid);
+
+    await setDoc(refPosts, userData);
   } catch (error) {
     console.log("Reg Error: ", error.message);
     return;
@@ -121,6 +130,18 @@ export const likeFirestore = async (postId, isLike) => {
   }
 };
 
+export const getAvatarsFirestore = async (userId) => {
+  try {
+    const refPosts = doc(db, "users", userId);
+
+    const newData = await getDoc(refPosts);
+
+    return newData?.data();
+  } catch (error) {
+    console.log("get avatars Error: ", error.message);
+    return;
+  }
+};
 export const sendCommentFirestore = async ({ text, postId }) => {
   try {
     const refComments = doc(db, "posts", postId);
@@ -128,7 +149,6 @@ export const sendCommentFirestore = async ({ text, postId }) => {
       id: nanoid(),
       text: text,
       authorId: auth.currentUser.uid,
-      authorAvatar: auth.currentUser.photoURL,
       timestamp: Timestamp.fromDate(new Date()),
     };
     await updateDoc(refComments, {

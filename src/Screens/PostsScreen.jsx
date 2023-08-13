@@ -11,6 +11,7 @@ import { db } from "../../config";
 import { useDispatch } from "react-redux";
 import { setIsLoading } from "../redux/authSlice";
 import { Loader } from "../components/Loader";
+import { getAvatarsFirestore } from "../firebase/authFirebase";
 
 export const PostsScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -23,7 +24,7 @@ export const PostsScreen = () => {
       const unsubscribe = (() => {
         const posts = collection(db, "posts");
 
-        return onSnapshot(posts, (querySnapshot) => {
+        return onSnapshot(posts, async (querySnapshot) => {
           const newData = querySnapshot.docs.map((doc) => ({
             ...doc.data(),
             id: doc.id,
@@ -31,7 +32,14 @@ export const PostsScreen = () => {
           const sortedData = newData.sort(
             (a, b) => b.timestamp.seconds - a.timestamp.seconds
           );
-          setPosts(sortedData);
+
+          const mapData = await Promise.all(
+            sortedData.map(async (data) => {
+              const { authorAvatar } = await getAvatarsFirestore(data.authorId);
+              return { ...data, authorImage: authorAvatar };
+            })
+          );
+          setPosts(mapData);
         });
       })();
       dispatch(setIsLoading(false));

@@ -20,7 +20,10 @@ import {
   where,
 } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
-import { sendImageToStorage } from "../firebase/authFirebase";
+import {
+  getAvatarsFirestore,
+  sendImageToStorage,
+} from "../firebase/authFirebase";
 import { nanoid } from "@reduxjs/toolkit";
 import { Loader } from "../components/Loader";
 import { LogOutButton } from "../components/LogOut";
@@ -40,16 +43,24 @@ export const ProfileScreen = () => {
           collection(db, "posts"),
           where("authorId", "==", auth.currentUser.uid)
         );
-        return onSnapshot(posts, (querySnapshot) => {
+        return onSnapshot(posts, async (querySnapshot) => {
           const newData = querySnapshot.docs.map((doc) => ({
             ...doc.data(),
             id: doc.id,
           }));
+          doc;
 
           const sortedData = newData.sort(
             (a, b) => b.timestamp.seconds - a.timestamp.seconds
           );
-          setPosts(sortedData);
+
+          const mapData = await Promise.all(
+            sortedData.map(async (data) => {
+              const avatar = await getAvatarsFirestore(data.authorId);
+              return { ...data, authorImage: avatar?.authorAvatar };
+            })
+          );
+          setPosts(mapData);
           dispatch(setIsLoading(false));
         });
       };
@@ -85,9 +96,9 @@ export const ProfileScreen = () => {
     await updateProfile(auth.currentUser, {
       photoURL: avatarUrl,
     });
-    const updates = posts.map(async ({ id }) => {
-      const refPosts = doc(db, "posts", id);
-      return await updateDoc(refPosts, { authorImage: avatarUrl });
+    const updates = posts.map(async ({ authorId }) => {
+      const refPosts = doc(db, "users", authorId);
+      return await updateDoc(refPosts, { authorAvatar: avatarUrl });
     });
     setAvatar(avatarUrl);
     // await Promise.all(updates);

@@ -27,7 +27,7 @@ export const PostCard = ({
 
   useFocusEffect(
     useCallback(() => {
-      const isLike = likes.findIndex(
+      const isLike = likes?.findIndex(
         ({ authorId }) => authorId === auth.currentUser.uid
       );
       setIsLiked(isLike !== -1);
@@ -122,7 +122,7 @@ export const PostCard = ({
                 isLiked ? "rgba(255, 108, 0, 1)" : "rgba(189, 189, 189, 1)"
               }
             />
-            <Text style={styles.contentLikes}>{likes.length}</Text>
+            <Text style={styles.contentLikes}>{likes?.length}</Text>
           </View>
         </Pressable>
         <Pressable

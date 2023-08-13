@@ -5,17 +5,18 @@ import {
   KeyboardAvoidingView,
   Pressable,
   TextInput,
-  TouchableOpacity,
 } from "react-native";
 import { View, Text, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../config";
-import { sendCommentFirestore } from "../firebase/authFirebase";
-import moment, { locale } from "moment/moment";
+import {
+  getAvatarsFirestore,
+  sendCommentFirestore,
+} from "../firebase/authFirebase";
+import moment from "moment/moment";
 import "moment/min/locales";
 
 export const CommentsScreen = ({ route }) => {
@@ -27,33 +28,42 @@ export const CommentsScreen = ({ route }) => {
 
   const [comments, setComments] = useState([]);
   const [image, setImage] = useState("");
-  const dispatch = useDispatch();
 
   const { postId } = route.params;
   useFocusEffect(
     useCallback(() => {
       // dispatch(setIsLoading(true));
-      const unsubscribe = (() => {
+      const unsubscribePosts = (() => {
         const comments = doc(db, "posts", postId);
 
-        return onSnapshot(comments, (querySnapshot) => {
+        return onSnapshot(comments, async (querySnapshot) => {
           const { comments, image } = querySnapshot.data();
 
-          const res = moment.unix(comments[0].timestamp.seconds);
-          const res2 = moment(res).format("DD MMMM, YYYY | HH:mm");
-          const filteredData = comments
-            .sort((a, b) => a.timestamp.seconds - b.timestamp.seconds)
-            .map((data) => ({
-              ...data,
-              timestamp: res2,
-            }));
-          setComments(filteredData);
+          if (comments.length) {
+            const res = moment.unix(comments[0].timestamp.seconds);
+            const res2 = moment(res).format("DD MMMM, YYYY | HH:mm");
+            const filteredData = comments.sort(
+              (a, b) => a.timestamp.seconds - b.timestamp.seconds
+            );
+
+            const mapData = await Promise.all(
+              filteredData.map(async (data) => {
+                const avatar = await getAvatarsFirestore(data.authorId);
+                return {
+                  ...data,
+                  timestamp: res2,
+                  authorAvatar: avatar?.authorAvatar,
+                };
+              })
+            );
+            setComments(mapData);
+          }
           setImage(image);
         });
       })();
       // dispatch(setIsLoading(false));
       return () => {
-        unsubscribe();
+        unsubscribePosts();
       };
     }, [])
   );

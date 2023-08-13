@@ -46,7 +46,7 @@ export const CreatePostsScreen = () => {
         });
         const media = await MediaLibrary.requestPermissionsAsync();
         const location = await Location.requestForegroundPermissionsAsync();
-        console.log(cameraRef);
+        // console.log(cameraRef);
 
         sethasPermissionСamera(camera.granted && media.granted);
         setHasPermissionLocation(location.granted);
