@@ -82,24 +82,23 @@ export const createUserFirestore = async (data) => {
   try {
     const { email, password, name, profile_picture } = data;
     await createUserWithEmailAndPassword(auth, email, password);
-
-    const { downloadUrl } = await sendImageToStorage({
-      name: nanoid(),
-      uri: profile_picture,
-    });
-
+    const refPosts = doc(db, "users", auth.currentUser.uid);
+    let downloadUrl = "";
+    if (profile_picture) {
+      const { downloadUrl } = await sendImageToStorage({
+        name: nanoid(),
+        uri: profile_picture,
+      });
+      downloadUrl = downloadUrl;
+    }
     await updateProfile(auth.currentUser, {
       displayName: name,
       photoURL: downloadUrl,
     });
 
-    const userData = {
+    await setDoc(refPosts, {
       authorAvatar: downloadUrl,
-    };
-
-    const refPosts = doc(db, "users", auth.currentUser.uid);
-
-    await setDoc(refPosts, userData);
+    });
   } catch (error) {
     console.log("Reg Error: ", error.message);
     return;

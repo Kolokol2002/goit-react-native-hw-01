@@ -24,7 +24,7 @@ import { Loader } from "../components/Loader";
 
 export const CreatePostsScreen = () => {
   const [hasPermissionСamera, sethasPermissionСamera] = useState(false);
-  const [hasPermissionLocation, setHasPermissionLocation] = useState(true);
+  const [hasPermissionLocation, setHasPermissionLocation] = useState(false);
   const [cameraRef, setCameraRef] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [name, setName] = useState("");
@@ -39,25 +39,27 @@ export const CreatePostsScreen = () => {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        // await cameraRef.resumePreview();
-        // const camera = await Camera.requestCameraPermissionsAsync();
         const camera = await Camera.requestCameraPermissionsAsync({
           canAskAgain: true,
         });
         const media = await MediaLibrary.requestPermissionsAsync();
         const location = await Location.requestForegroundPermissionsAsync();
-        // console.log(cameraRef);
 
         sethasPermissionСamera(camera.granted && media.granted);
         setHasPermissionLocation(location.granted);
       })();
 
-      return async () => {
-        // await cameraRef.pausePreview();
-        // navigation.reset({
-        //   index: 1,
-        //   routes: [{ name: "Posts" }],
-        // });
+      return () => {
+        // sethasPermissionСamera(false);
+        // setHasPermissionLocation(false);
+        // cameraRef(null);
+        // setImageUri(null);
+        // setName("");
+        // locationName("");
+        navigation.reset({
+          index: 1,
+          routes: [{ name: "Posts" }],
+        });
       };
     }, [])
   );
@@ -65,19 +67,24 @@ export const CreatePostsScreen = () => {
   const onPublishPost = async () => {
     dispatch(setIsLoading(true));
     if (hasPermissionLocation) {
-      // const { coords } = await Location.getCurrentPositionAsync();
-      const data = {
-        text: name,
-        location_name: locationName,
-        uri: imageUri.uri,
-        geolocation: null,
-      };
-      await writeDataToFirestore(data);
-      // navigation.reset({
-      //   index: 1,
-      //   routes: [{ name: "Posts" }],
-      // });
-      navigation.goBack();
+      try {
+        const { coords } = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Low,
+        });
+        const data = {
+          text: name,
+          location_name: locationName,
+          uri: imageUri.uri,
+          geolocation: coords,
+        };
+        await writeDataToFirestore(data);
+        navigation.reset({
+          index: 1,
+          routes: [{ name: "Posts" }],
+        });
+      } catch (error) {
+        console.log("location error", error.message);
+      }
     } else {
       Alert.alert(
         "App needs access to your location so we can have geolocation on post."

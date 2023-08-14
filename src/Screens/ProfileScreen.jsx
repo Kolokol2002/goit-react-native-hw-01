@@ -29,7 +29,7 @@ import { Loader } from "../components/Loader";
 import { LogOutButton } from "../components/LogOut";
 
 export const ProfileScreen = () => {
-  const user = useSelector(getInfoCurrentUser);
+  const { displayName } = auth.currentUser;
   const [posts, setPosts] = useState([]);
   const isFocused = useIsFocused();
   const [avatar, setAvatar] = useState("");
@@ -100,8 +100,8 @@ export const ProfileScreen = () => {
       const refPosts = doc(db, "users", authorId);
       return await updateDoc(refPosts, { authorAvatar: avatarUrl });
     });
+    await Promise.all(updates);
     setAvatar(avatarUrl);
-    // await Promise.all(updates);
   };
 
   return (
@@ -125,7 +125,7 @@ export const ProfileScreen = () => {
                 <View style={styles.header}>
                   <PhotoBox avatar={avatar} onPickAvatar={onPickAvatar} />
                   <LogOutButton style={styles.logout} />
-                  <Text style={styles.title}>{user?.name}</Text>
+                  <Text style={styles.title}>{displayName}</Text>
                 </View>
               </>
             }

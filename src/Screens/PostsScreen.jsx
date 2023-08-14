@@ -35,8 +35,8 @@ export const PostsScreen = () => {
 
           const mapData = await Promise.all(
             sortedData.map(async (data) => {
-              const { authorAvatar } = await getAvatarsFirestore(data.authorId);
-              return { ...data, authorImage: authorAvatar };
+              const avatar = await getAvatarsFirestore(data.authorId);
+              return { ...data, authorImage: avatar?.authorAvatar };
             })
           );
           setPosts(mapData);

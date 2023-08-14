@@ -9,7 +9,7 @@ import {
 import { View, Text, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../config";
 import {
@@ -18,6 +18,7 @@ import {
 } from "../firebase/authFirebase";
 import moment from "moment/moment";
 import "moment/min/locales";
+import blankProlife from "../image/profile.png";
 
 export const CommentsScreen = ({ route }) => {
   const [borderColor, setBorderColor] = useState("rgba(232, 232, 232, 1)");
@@ -28,6 +29,7 @@ export const CommentsScreen = ({ route }) => {
 
   const [comments, setComments] = useState([]);
   const [image, setImage] = useState("");
+  const isFocused = useIsFocused();
 
   const { postId } = route.params;
   useFocusEffect(
@@ -65,7 +67,7 @@ export const CommentsScreen = ({ route }) => {
       return () => {
         unsubscribePosts();
       };
-    }, [])
+    }, [auth.currentUser.photoURL])
   );
 
   const onBlur = () => {
@@ -88,86 +90,98 @@ export const CommentsScreen = ({ route }) => {
   };
 
   return (
-    <Pressable style={styles.container} onPress={onBlur}>
-      <FlatList
-        data={comments}
-        keyExtractor={({ id }) => id}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <>
-            <View style={styles.start}></View>
-            {image && (
-              <Image source={{ uri: image }} style={styles.postImage} />
-            )}
-          </>
-        }
-        renderItem={({ item: { authorId, authorAvatar, text, timestamp } }) => (
-          <View style={styles.commentsContainer}>
-            <View
-              style={[
-                {
-                  flexDirection:
-                    authorId === auth.currentUser.uid ? "row-reverse" : "row",
-                },
-                styles.commentContainer,
-              ]}
-            >
-              <Image
-                source={{ uri: authorAvatar }}
-                style={styles.authorAvatar}
-              />
-              <View style={styles.textContainer}>
-                <Text style={styles.text}>{text}</Text>
-                <Text
-                  style={[
-                    {
-                      marginLeft:
-                        authorId !== auth.currentUser.uid ? "auto" : 0,
-                    },
-                    styles.data,
-                  ]}
-                >
-                  {timestamp}
-                </Text>
+    isFocused && (
+      <Pressable style={styles.container} onPress={onBlur}>
+        <FlatList
+          data={comments}
+          keyExtractor={({ id }) => id}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <>
+              <View style={styles.start}></View>
+              {image && (
+                <Image source={{ uri: image }} style={styles.postImage} />
+              )}
+            </>
+          }
+          renderItem={({
+            item: { authorId, authorAvatar, text, timestamp },
+          }) => (
+            <View style={styles.commentsContainer}>
+              <View
+                style={[
+                  {
+                    flexDirection:
+                      authorId === auth.currentUser.uid ? "row-reverse" : "row",
+                  },
+                  styles.commentContainer,
+                ]}
+              >
+                {authorAvatar ? (
+                  <Image
+                    source={{ uri: authorAvatar }}
+                    style={styles.authorAvatar}
+                  />
+                ) : (
+                  <View style={styles.blankAvatarContainer}>
+                    <Image source={blankProlife} style={styles.blankAvatar} />
+                  </View>
+                )}
+                <View style={styles.textContainer}>
+                  <Text style={styles.text}>{text}</Text>
+                  <Text
+                    style={[
+                      {
+                        marginLeft:
+                          authorId !== auth.currentUser.uid ? "auto" : 0,
+                      },
+                      styles.data,
+                    ]}
+                  >
+                    {timestamp}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        )}
-      />
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-      >
-        <TextInput
-          onBlur={onBlur}
-          onFocus={onFocus}
-          value={commentText}
-          onChangeText={setCommentText}
-          style={[
-            { backgroundColor: backgroundColor, borderColor: borderColor },
-            styles.input,
-          ]}
-          placeholder={"Коментувати..."}
+          )}
         />
-        <Pressable
-          onPress={onSendText}
-          style={({ pressed }) => {
-            return [
-              {
-                backgroundColor: pressed ? "#ff6a00ba" : "rgba(255, 108, 0, 1)",
-              },
-              styles.sendButton,
-            ];
-          }}
+        <KeyboardAvoidingView
+          behavior={Platform.OS == "ios" ? "padding" : "height"}
         >
-          <AntDesign
-            style={styles.sendIcon}
-            name="arrowup"
-            size={20}
-            color="rgba(255, 255, 255, 1)"
+          <TextInput
+            onBlur={onBlur}
+            onFocus={onFocus}
+            value={commentText}
+            onChangeText={setCommentText}
+            style={[
+              { backgroundColor: backgroundColor, borderColor: borderColor },
+              styles.input,
+            ]}
+            placeholder={"Коментувати..."}
           />
-        </Pressable>
-      </KeyboardAvoidingView>
-    </Pressable>
+          <Pressable
+            onPress={onSendText}
+            style={({ pressed }) => {
+              return [
+                {
+                  backgroundColor: pressed
+                    ? "#ff6a00ba"
+                    : "rgba(255, 108, 0, 1)",
+                },
+                styles.sendButton,
+              ];
+            }}
+          >
+            <AntDesign
+              style={styles.sendIcon}
+              name="arrowup"
+              size={20}
+              color="rgba(255, 255, 255, 1)"
+            />
+          </Pressable>
+        </KeyboardAvoidingView>
+      </Pressable>
+    )
   );
 };
 
@@ -183,7 +197,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 32,
   },
-  authorAvatar: { width: 28, height: 28, borderRadius: 50 },
+  blankAvatarContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 50,
+    backgroundColor: "rgba(0, 0, 0, 0.03)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  blankAvatar: {
+    // borderRadius: 50,
+    width: 20,
+    height: 20,
+  },
+
+  authorAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 50,
+  },
   commentsContainer: { marginBottom: 24 },
   commentContainer: {
     gap: 16,
