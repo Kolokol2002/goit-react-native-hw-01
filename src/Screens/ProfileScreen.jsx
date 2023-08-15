@@ -44,24 +44,32 @@ export const ProfileScreen = () => {
           where("authorId", "==", auth.currentUser.uid)
         );
         return onSnapshot(posts, async (querySnapshot) => {
-          const newData = querySnapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }));
-          doc;
+          try {
+            const newData = querySnapshot.docs.map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            doc;
 
-          const sortedData = newData.sort(
-            (a, b) => b.timestamp.seconds - a.timestamp.seconds
-          );
+            const sortedData = newData.sort(
+              (a, b) => b.timestamp.seconds - a.timestamp.seconds
+            );
 
-          const mapData = await Promise.all(
-            sortedData.map(async (data) => {
-              const avatar = await getAvatarsFirestore(data.authorId);
-              return { ...data, authorImage: avatar?.authorAvatar };
-            })
-          );
-          setPosts(mapData);
-          dispatch(setIsLoading(false));
+            const mapData = await Promise.all(
+              sortedData.map(async (data) => {
+                try {
+                  const avatar = await getAvatarsFirestore(data.authorId);
+                  return { ...data, authorImage: avatar?.authorAvatar };
+                } catch (error) {
+                  console.log(error);
+                }
+              })
+            );
+            setPosts(mapData);
+            dispatch(setIsLoading(false));
+          } catch (error) {
+            console.log(error);
+          }
         });
       };
       unsubscribe();
@@ -74,34 +82,46 @@ export const ProfileScreen = () => {
   }, [avatar]);
 
   const onPickAvatar = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const { downloadUrl } = await sendImageToStorage({
-        name: nanoid(),
-        uri: result.assets[0].uri,
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
-      await updateAvatar(downloadUrl);
-    } else {
-      await updateAvatar("");
+
+      if (!result.canceled) {
+        const { downloadUrl } = await sendImageToStorage({
+          name: nanoid(),
+          uri: result.assets[0].uri,
+        });
+        await updateAvatar(downloadUrl);
+      } else {
+        await updateAvatar("");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const updateAvatar = async (avatarUrl) => {
-    await updateProfile(auth.currentUser, {
-      photoURL: avatarUrl,
-    });
-    const updates = posts.map(async ({ authorId }) => {
-      const refPosts = doc(db, "users", authorId);
-      return await updateDoc(refPosts, { authorAvatar: avatarUrl });
-    });
-    await Promise.all(updates);
-    setAvatar(avatarUrl);
+    try {
+      await updateProfile(auth.currentUser, {
+        photoURL: avatarUrl,
+      });
+      const updates = posts.map(async ({ authorId }) => {
+        try {
+          const refPosts = doc(db, "users", authorId);
+          return await updateDoc(refPosts, { authorAvatar: avatarUrl });
+        } catch (error) {
+          console.log(error);
+        }
+      });
+      await Promise.all(updates);
+      setAvatar(avatarUrl);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

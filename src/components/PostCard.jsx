@@ -23,6 +23,7 @@ export const PostCard = ({
   const navigation = useNavigation();
   const [lastPress, setLastPress] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
+  const [isCommented, setIsCommented] = useState(false);
   const liked = useSharedValue(0);
 
   useFocusEffect(
@@ -30,7 +31,11 @@ export const PostCard = ({
       const isLike = likes?.findIndex(
         ({ authorId }) => authorId === auth.currentUser.uid
       );
+      const isComment = comments?.findIndex(
+        ({ authorId }) => authorId === auth.currentUser.uid
+      );
       setIsLiked(isLike !== -1);
+      setIsCommented(isComment !== -1);
       return () => {};
     }, [likes])
   );
@@ -51,22 +56,30 @@ export const PostCard = ({
   });
 
   const onDoubleClick = async () => {
-    const delta = new Date().getTime() - lastPress;
+    try {
+      const delta = new Date().getTime() - lastPress;
 
-    if (delta < 250) {
-      await onLike(id);
+      if (delta < 250) {
+        await onLike(id);
+      }
+
+      setLastPress(new Date().getTime());
+    } catch (error) {
+      console.log(error);
     }
-
-    setLastPress(new Date().getTime());
   };
 
   const onLike = async () => {
-    setIsLiked(isLiked ? false : true);
-    liked.value = withSpring(liked.value ? 0 : 1);
+    try {
+      setIsLiked(isLiked ? false : true);
+      liked.value = withSpring(liked.value ? 0 : 1);
 
-    liked.value = withDelay(1000, withSpring(0, { duration: 500 }));
+      liked.value = withDelay(1000, withSpring(0, { duration: 500 }));
 
-    await likeFirestore(id, isLiked);
+      await likeFirestore(id, isLiked);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -95,7 +108,7 @@ export const PostCard = ({
           onPress={onToCommentsScreen}
           style={styles.contentCommentsContainer}
         >
-          {comments?.length === 0 ? (
+          {!isCommented ? (
             <FontAwesome
               style={styles.contentCommentsIcon}
               name="comment-o"

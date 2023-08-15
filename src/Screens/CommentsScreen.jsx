@@ -39,28 +39,36 @@ export const CommentsScreen = ({ route }) => {
         const comments = doc(db, "posts", postId);
 
         return onSnapshot(comments, async (querySnapshot) => {
-          const { comments, image } = querySnapshot.data();
+          try {
+            const { comments, image } = querySnapshot.data();
 
-          if (comments.length) {
-            const res = moment.unix(comments[0].timestamp.seconds);
-            const res2 = moment(res).format("DD MMMM, YYYY | HH:mm");
-            const filteredData = comments.sort(
-              (a, b) => a.timestamp.seconds - b.timestamp.seconds
-            );
+            if (comments.length) {
+              const res = moment.unix(comments[0].timestamp.seconds);
+              const res2 = moment(res).format("DD MMMM, YYYY | HH:mm");
+              const filteredData = comments.sort(
+                (a, b) => a.timestamp.seconds - b.timestamp.seconds
+              );
 
-            const mapData = await Promise.all(
-              filteredData.map(async (data) => {
-                const avatar = await getAvatarsFirestore(data.authorId);
-                return {
-                  ...data,
-                  timestamp: res2,
-                  authorAvatar: avatar?.authorAvatar,
-                };
-              })
-            );
-            setComments(mapData);
+              const mapData = await Promise.all(
+                filteredData.map(async (data) => {
+                  try {
+                    const avatar = await getAvatarsFirestore(data.authorId);
+                    return {
+                      ...data,
+                      timestamp: res2,
+                      authorAvatar: avatar?.authorAvatar,
+                    };
+                  } catch (error) {
+                    console.log(error);
+                  }
+                })
+              );
+              setComments(mapData);
+            }
+            setImage(image);
+          } catch (error) {
+            console.log(error);
           }
-          setImage(image);
         });
       })();
       // dispatch(setIsLoading(false));
@@ -80,13 +88,17 @@ export const CommentsScreen = ({ route }) => {
   };
 
   const onSendText = async () => {
-    await sendCommentFirestore({
-      text: commentText,
-      postId: postId,
-    });
-    setCommentText("");
-    onBlur();
-    Keyboard.dismiss();
+    try {
+      await sendCommentFirestore({
+        text: commentText,
+        postId: postId,
+      });
+      setCommentText("");
+      onBlur();
+      Keyboard.dismiss();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

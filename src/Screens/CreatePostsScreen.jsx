@@ -39,14 +39,18 @@ export const CreatePostsScreen = () => {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        const camera = await Camera.requestCameraPermissionsAsync({
-          canAskAgain: true,
-        });
-        const media = await MediaLibrary.requestPermissionsAsync();
-        const location = await Location.requestForegroundPermissionsAsync();
+        try {
+          const camera = await Camera.requestCameraPermissionsAsync({
+            canAskAgain: true,
+          });
+          const media = await MediaLibrary.requestPermissionsAsync();
+          const location = await Location.requestForegroundPermissionsAsync();
 
-        sethasPermissionСamera(camera.granted && media.granted);
-        setHasPermissionLocation(location.granted);
+          sethasPermissionСamera(camera.granted && media.granted);
+          setHasPermissionLocation(location.granted);
+        } catch (error) {
+          console.log(error);
+        }
       })();
 
       return () => {
@@ -65,51 +69,59 @@ export const CreatePostsScreen = () => {
   );
 
   const onPublishPost = async () => {
-    dispatch(setIsLoading(true));
-    if (hasPermissionLocation) {
-      try {
-        const { coords } = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Low,
-        });
-        const data = {
-          text: name,
-          location_name: locationName,
-          uri: imageUri.uri,
-          geolocation: coords,
-        };
-        await writeDataToFirestore(data);
-        navigation.reset({
-          index: 1,
-          routes: [{ name: "Posts" }],
-        });
-      } catch (error) {
-        console.log("location error", error.message);
+    try {
+      dispatch(setIsLoading(true));
+      if (hasPermissionLocation) {
+        try {
+          const { coords } = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Low,
+          });
+          const data = {
+            text: name,
+            location_name: locationName,
+            uri: imageUri.uri,
+            geolocation: coords,
+          };
+          await writeDataToFirestore(data);
+          navigation.reset({
+            index: 1,
+            routes: [{ name: "Posts" }],
+          });
+        } catch (error) {
+          console.log("location error", error.message);
+        }
+      } else {
+        Alert.alert(
+          "App needs access to your location so we can have geolocation on post."
+        );
       }
-    } else {
-      Alert.alert(
-        "App needs access to your location so we can have geolocation on post."
-      );
+      dispatch(setIsLoading(false));
+    } catch (error) {
+      console.log(error);
     }
-    dispatch(setIsLoading(false));
   };
 
   const onTakePhoto = async () => {
-    if (hasPermissionСamera) {
-      if (imageUri === null) {
-        setLoaderTakePhoto(true);
-        const { uri } = await cameraRef.takePictureAsync({
-          quality: 1,
-        });
-        const asset = await MediaLibrary.createAssetAsync(uri);
-        setImageUri(asset);
-        setLoaderTakePhoto(false);
+    try {
+      if (hasPermissionСamera) {
+        if (imageUri === null) {
+          setLoaderTakePhoto(true);
+          const { uri } = await cameraRef.takePictureAsync({
+            quality: 1,
+          });
+          const asset = await MediaLibrary.createAssetAsync(uri);
+          setImageUri(asset);
+          setLoaderTakePhoto(false);
+        } else {
+          setImageUri(null);
+        }
       } else {
-        setImageUri(null);
+        Alert.alert(
+          "App needs access to your camera so you can take awesome pictures."
+        );
       }
-    } else {
-      Alert.alert(
-        "App needs access to your camera so you can take awesome pictures."
-      );
+    } catch (error) {
+      console.log(error);
     }
   };
 

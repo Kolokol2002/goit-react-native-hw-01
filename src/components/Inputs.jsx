@@ -40,6 +40,7 @@ export const Input = ({ typeInput, placeholder, value, onChangeText }) => {
               onChangeText={onChangeText}
               secureTextEntry={togglePassword}
               placeholder={placeholder}
+              autoCapitalize={"none"}
               style={[
                 { backgroundColor: backgroundColor, borderColor: borderColor },
                 styles.input,
@@ -62,6 +63,7 @@ export const Input = ({ typeInput, placeholder, value, onChangeText }) => {
             value={value}
             onChangeText={onChangeText}
             inputMode={typeInput}
+            autoCapitalize={typeInput === "email" ? "none" : "words"}
             style={[
               { backgroundColor: backgroundColor, borderColor: borderColor },
               styles.input,

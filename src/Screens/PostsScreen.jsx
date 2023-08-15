@@ -25,21 +25,29 @@ export const PostsScreen = () => {
         const posts = collection(db, "posts");
 
         return onSnapshot(posts, async (querySnapshot) => {
-          const newData = querySnapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }));
-          const sortedData = newData.sort(
-            (a, b) => b.timestamp.seconds - a.timestamp.seconds
-          );
+          try {
+            const newData = querySnapshot.docs.map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            const sortedData = newData.sort(
+              (a, b) => b.timestamp.seconds - a.timestamp.seconds
+            );
 
-          const mapData = await Promise.all(
-            sortedData.map(async (data) => {
-              const avatar = await getAvatarsFirestore(data.authorId);
-              return { ...data, authorImage: avatar?.authorAvatar };
-            })
-          );
-          setPosts(mapData);
+            const mapData = await Promise.all(
+              sortedData.map(async (data) => {
+                try {
+                  const avatar = await getAvatarsFirestore(data.authorId);
+                  return { ...data, authorImage: avatar?.authorAvatar };
+                } catch (error) {
+                  console.log(error);
+                }
+              })
+            );
+            setPosts(mapData);
+          } catch (error) {
+            console.log(error);
+          }
         });
       })();
       dispatch(setIsLoading(false));

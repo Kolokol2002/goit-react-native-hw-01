@@ -50,32 +50,40 @@ export const writeDataToFirestore = async (data) => {
 };
 
 export const sendImageToStorage = async (file) => {
-  const fetchResponse = await fetch(file.uri);
-  const theBlob = await fetchResponse.blob();
-  const storageRef = ref(storage, "images/" + file.name);
+  try {
+    const fetchResponse = await fetch(file.uri);
+    const theBlob = await fetchResponse.blob();
+    const storageRef = ref(storage, "images/" + file.name);
 
-  const uploadTask = uploadBytesResumable(storageRef, theBlob);
+    const uploadTask = uploadBytesResumable(storageRef, theBlob);
 
-  return new Promise((resolve, reject) => {
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      },
-      (error) => {
-        console.log("error", error);
-        reject(error);
-      },
-      async () => {
-        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve({
-          downloadUrl,
-          metadata: uploadTask.snapshot.metadata,
-        });
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        (error) => {
+          console.log("error", error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve({
+              downloadUrl,
+              metadata: uploadTask.snapshot.metadata,
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const createUserFirestore = async (data) => {
@@ -101,7 +109,8 @@ export const createUserFirestore = async (data) => {
     });
   } catch (error) {
     console.log("Reg Error: ", error.message);
-    return;
+    console.dir(error);
+    return error.code;
   }
 };
 
@@ -111,7 +120,7 @@ export const signInFirestore = async (data) => {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     console.log("Reg Error: ", error.message);
-    return;
+    return error.code;
   }
 };
 

@@ -8,6 +8,7 @@ import { signInFirestore } from "../firebase/authFirebase";
 import { Loader } from "../components/Loader";
 import { useDispatch } from "react-redux";
 import { setIsLoading } from "../redux/authSlice";
+import { Alert } from "react-native";
 
 export const LoginScreen = () => {
   const navigation = useNavigation();
@@ -16,12 +17,37 @@ export const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const onSubmit = async () => {
-    dispatch(setIsLoading(true));
-    const data = {
-      email,
-      password,
-    };
-    await signInFirestore(data);
+    try {
+      dispatch(setIsLoading(true));
+      const data = {
+        email,
+        password,
+      };
+      const isError = await signInFirestore(data);
+      switch (isError) {
+        case "auth/wrong-password":
+          Alert.alert("Пароль не вірний!!!");
+          break;
+        case "auth/missing-email":
+          Alert.alert("Ви не вказали емайл!!!");
+          break;
+        case "auth/missing-password":
+          Alert.alert("Ви не вказали пароль!!!");
+          break;
+        case "auth/user-not-found":
+          Alert.alert(`Користувач ${email} не існує!!!`);
+          break;
+        case "auth/invalid-email":
+          Alert.alert("Не вірний формат емайлу. Приклад - user@gmai.com.");
+          break;
+
+        default:
+          break;
+      }
+      dispatch(setIsLoading(false));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
